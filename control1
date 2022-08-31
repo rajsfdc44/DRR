@@ -1,0 +1,117 @@
+({
+
+    doInit : function(component, event, helper) {
+    //location.reload(); this is just reloading the page again and again
+	// prasad changes
+     helper.setColumns(component);
+       var windowloc= window.location.href;
+       var worklistURL = windowloc.includes('myworklists');
+        if(!worklistURL){
+            component.set('v.isMap',true);
+            
+            console.log('isMap@@'+component.get('v.isMap'));
+        }
+    },
+        
+        fetchMap : function(component, event, helper) {
+            console.log("Controller fetchMap");
+           // var actions = helper.cloneOrder(component, event, helper);
+            //helper.getServLocFilterData(component, event, helper);
+            helper.fetchMapHelper(component, event, helper);
+            console.log('After clicking on search');
+            
+        },
+    
+    populateFilters : function(component,event,helper){
+        //Fetching Account filter details
+        var action = component.get("c.getAccounts");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if(state === "SUCCESS")
+            {
+                var accounts = response.getReturnValue();
+                var result= [];
+                for(var i=0;i<accounts.length;i++)
+                {
+                    var option = {
+                        "label" : accounts[i].VPS_CLE_NAME__c + " - " + accounts[i].Name,
+                        "value" : accounts[i].Id
+                    };
+                    result.push(option);
+                }
+                var option = {
+                    "label" : "All",
+                    "value" : "None"
+                };
+                result.push(option);
+                component.set("v.companyOptions", result);
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+        $A.enqueueAction(action);
+	
+	//Fetching Map Type filter details
+        var action = component.get("c.getMapTypes");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if(state === "SUCCESS")
+            {
+                var mapTypes = response.getReturnValue();
+                var result= [];
+                for(var i=0;i<mapTypes.length;i++)
+                {
+                    var option = {
+                        "label" : mapTypes[i],
+                        "value" : mapTypes[i]
+                    };
+                    result.push(option);
+                }
+                /*var option = {
+                    "label" : "All",
+                    "value" : "None"
+                };
+                result.push(option);*/
+                component.set("v.mapOptions", result);
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+        $A.enqueueAction(action);
+        
+        //Fetching Map Status filter details
+        var action = component.get("c.getMapStatus");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if(state === "SUCCESS")
+            {
+                var mapStatus = response.getReturnValue();
+                var result= [];
+                for(var i=0;i<mapStatus.length;i++)
+                {
+                    var option = {
+                        "label" : mapStatus[i],
+                        "value" : mapStatus[i]
+                    };
+                    result.push(option);
+                }
+                /*var option = {
+                    "label" : "All",
+                    "value" : "None"
+                };
+                result.push(option);*/
+                component.set("v.statusOptions", result);
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+        $A.enqueueAction(action);
+   
+    }
+})
