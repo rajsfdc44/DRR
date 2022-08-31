@@ -1,0 +1,166 @@
+public without sharing class KMZ_MapWorklist_LightningDatatable {
+
+@AuraEnabled
+  public static List<Account> getAccounts() {
+    /*if (!Schema.SObjectType.User.isAccessible() ||
+            !Schema.SObjectType.User.fields.Name.isAccessible() ||
+            !Schema.SObjectType.User.fields.contactId.isAccessible()) {
+                return null; // error, insufficient permissions for query
+            }*/
+    User currentUser = [
+      SELECT Id, Name, contactId
+      FROM User
+      WHERE Id = :UserInfo.getUserId()
+    ];
+    System.debug('currentUser' + currentUser.contactId);
+    List<Account> returnList = new List<Account>();
+    // IR 2990
+    List<AccountContactRelation> accountContactJunction = [
+      SELECT
+        Id,
+        accountId,
+        account.Name,
+        account.VPS_CLE_Name__c,
+        account.VPS_Unique_NASP__c
+      FROM AccountContactRelation
+      WHERE
+        contactid = :currentUser.contactId
+        AND Account.RecordType.Name = 'Business'
+        AND (Account.ACNA__c != ''
+        OR Account.VPS_Unique_CLE_ID__c != ''
+        OR Account.VPS_Unique_NASP__c != '')
+    ];
+    // Account userAccount = [SELECT Id, Name, ParentId FROM Account WHERE Id = :accountContactJunction.accountId];
+    String parentCLE = '';
+
+    for (AccountContactRelation acc : accountContactJunction) {
+      Account acct = new Account();
+      acct.Name = acc.account.Name;
+      acct.VPS_CLE_Name__c = acc.account.VPS_CLE_Name__c;
+      acct.Id = acc.account.id; //updated by ram.sahu
+      returnList.add(acct);
+    }
+
+    return returnList;
+  }
+    
+@AuraEnabled
+  public static List<String> getMapTypes() {
+  	List<String> mapTypes = new List<String>();
+      mapTypes.add('Quoted Route');
+      mapTypes.add('Fiber Availability');
+      mapTypes.add('As Provisioned');
+
+      return mapTypes;
+  }
+    
+@AuraEnabled
+  public static List<String> getMapStatus() {
+  	List<String> mapStatus = new List<String>();
+      mapStatus.add('Active');
+      mapStatus.add('Pending');
+      mapStatus.add('Not Approved');
+      mapStatus.add('Cancelled');
+      mapStatus.add('Expired');
+      return mapStatus;
+  }
+ @AuraEnabled
+  public static List<MapData> getMapData() {
+  	List<MapData> mapData = new List<MapData>();
+   mapData m1=new mapData();
+      m1.RequestNumber='KMZ18207184';
+      m1.NetworkRecord='ES-55733475';
+      m1.MapType='Quoted Route';
+      m1.State='CA';
+      m1.ExpirationDate='09/30/22'; 
+      m1.Status='Active';
+      m1.DownloadingsRemaining='15';
+      m1.Action='';
+      m1.RelatedRequests='VER071409173-001';
+      mapData.add(m1);
+      
+      mapData m2=new mapData();
+      m2.RequestNumber='KMZ19718225';
+      m2.NetworkRecord='32/KEGS/123456/NY';
+      m2.MapType='As Provisioned';
+      m2.State='CA';
+      m2.ExpirationDate='06/21/22'; 
+      m2.Status='Expired';
+      m2.DownloadingsRemaining='15';
+      m2.Action='';
+      m2.RelatedRequests='DF-BSTN-COP123';
+      mapData.add(m2);
+      
+      mapData m3=new mapData();
+      m3.RequestNumber='KMZ07223078';
+      m3.NetworkRecord='ES-98765432';
+      m3.MapType='Fiber Availability';
+      m3.State='Interstate';
+      m3.ExpirationDate=''; 
+      m3.Status='Pending';
+      m3.DownloadingsRemaining='';
+      m3.Action='';
+      m3.RelatedRequests='';
+      mapData.add(m3);   
+      
+      mapData m4=new mapData();
+      m4.RequestNumber='KMZ07182022';
+      m4.NetworkRecord='ES-67765411';
+      m4.MapType='Fiber Availability';
+      m4.State='Interstate';
+      m4.ExpirationDate=''; 
+      m4.Status='Cancelled';
+      m4.DownloadingsRemaining='';
+      m4.Action='';
+      m4.RelatedRequests='';
+      mapData.add(m4);
+  
+      mapData m5=new mapData();
+      m5.RequestNumber='KMZ08991222';
+      m5.NetworkRecord='ES-67765411';
+      m5.MapType='Fiber Availability';
+      m5.State='Interstate';
+      m5.ExpirationDate=''; 
+      m5.Status='Not Approved';
+      m5.DownloadingsRemaining='';
+      m5.Action='';
+      m5.RelatedRequests='';
+      mapData.add(m5);     
+      
+      mapData m6=new mapData();
+      m6.RequestNumber='KMZ18207185';
+      m6.NetworkRecord='ES-55733475';
+      m6.MapType='Quoted Route';
+      m6.State='CA';
+      m6.ExpirationDate='10/30/22'; 
+      m6.Status='Active';
+      m6.DownloadingsRemaining='14';
+      m6.Action='';
+      m6.RelatedRequests='VER071409173-002';
+      mapData.add(m6);
+      
+      mapData m7=new mapData();
+      m7.RequestNumber='KMZ18207186';
+      m7.NetworkRecord='ES-55733475';
+      m7.MapType='Quoted Route';
+      m7.State='CA';
+      m7.ExpirationDate='10/30/22'; 
+      m7.Status='Active';
+      m7.DownloadingsRemaining='13';
+      m7.Action='';
+      m7.RelatedRequests='VER071409173-003';
+      mapData.add(m7);
+      return mapData;
+  }
+    public class MapData{
+        public string RequestNumber {get;set;}
+		public string NetworkRecord {get;set;}
+        public string MapType {get;set;}
+        public string State {get;set;}
+        public string ExpirationDate {get;set;}
+        public string Status {get;set;}
+        public string DownloadingsRemaining {get;set;}
+        public string Action {get;set;}
+        public string RelatedRequests {get;set;}
+    }
+ }
