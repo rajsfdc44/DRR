@@ -1,0 +1,871 @@
+({
+	doInit : function(component, event, helper) {
+    //location.reload(); this is just reloading the page again and again
+	// prasad changes
+    
+       var windowloc= window.location.href;
+       var worklistURL = windowloc.includes('myworklists');
+        
+        if(!worklistURL){
+            component.set('v.isOrder',true);
+            
+            console.log('isOrder@@'+component.get('v.isOrder'));
+        }else{
+            component.set('v.isOrder1',true);
+            console.log('isOrder1@@'+component.get('v.isOrder1'));
+        }
+      
+    },
+    
+    fetchOrder : function(component, event, helper) {
+        console.log("Controller fetchOrder");
+       // var actions = helper.cloneOrder(component, event, helper);
+        //helper.getServLocFilterData(component, event, helper);
+        helper.fetchOrderHelper(component, event, helper);
+        console.log('After clicking on search');
+        
+    },
+    
+    handleRowAction: function (component, event, helper) {
+       
+        var action = event.getParam('action');
+        var row = event.getParam('row');
+        console.log('action' + action + 'row' + row);
+        if(action.name == 'copyOrder'){
+            var orderId = row.Copy;
+            helper.cloneOrder(component, event, helper, orderId);            
+        }        
+        //	alert('--test--');
+    }, 
+    
+    
+    sortTable : function(component, event, helper) {  
+        console.log("Controller sortTable");
+        /* 
+         * This method sorts the datatable by setting the sortBy and sortDirection 
+         * attributes based on the column the user has clicked on and calls 
+         * sortData() from helper. */        
+        var fieldName = event.getParam('fieldName');
+        var sortDirection = event.getParam('sortDirection');
+        console.log('Sort Direction: ' + event.getParam("sortDirection"));
+        component.set("v.sortBy", fieldName);
+        component.set("v.sortDirection", sortDirection);
+        helper.sortData(component, fieldName, sortDirection);
+    },    
+    downloadWorklist : function(component, event, helper) {
+        helper.downloadOrders(component);
+    },    
+    showSpinner: function(component, event, helper) {
+        component.set("v.Spinner", true); 
+    },
+    hideSpinner : function(component,event,helper){
+        component.set("v.Spinner", false);
+    },
+    // robert added updateFilter, insert updateFilter code
+    updateFilter: function(component, event, helper) {
+        console.log("Controller updateFilter");
+        console.log("keycode@@@" + event.getParams().keyCode);
+        if(event.getParams().keyCode == 13 || event.getSource().getLocalId() == "searchButton"){
+            var myEvent = $A.get("e.c:SearchKeyChange");
+            var filter = component.get("v.filter");
+            console.log('inside update Filter');
+            console.log("search: "+filter);
+            if(filter.length>=3){
+                //reset currentCount to default every time a new search happens
+                component.set("v.currentCount", component.get("v.initialRows"));
+                //clear all filters except search
+                component.set("v.activeFilter", 'all');
+                component.set("v.header", '');
+                component.set("v.selectedOwner", 'None');
+                component.set("v.selectedCompany", 'None');
+                component.set("v.selectedProduct", 'None');
+                component.set("v.selectedOrderType", 'None');
+                component.find("companyFilter").set("v.value", '');
+                component.find("ownerFilter").set("v.value", '');
+                component.find("productFilter").set("v.value", '');
+                component.find("orderTypeFilter").set("v.value", '');
+                
+                myEvent.setParams({"searchKey": filter});
+                myEvent.fire();
+            }
+            else if(filter.length===0){
+                myEvent.setParams({"searchKey": ''});
+                myEvent.fire();
+            }
+        }
+    },
+    //end of insert
+    handleHeaderAction: function (cmp, event, helper) {
+        console.log("Controller handleHeaderAction");
+        //clear any filters except header
+        cmp.set("v.currentCount", cmp.get("v.initialRows"));
+        //cmp.set("v.enableInfiniteLoading", true);
+        //console.log(cmp.get("v.enableInfiniteLoading"));
+        cmp.set("v.header", '');
+        //cmp.set("v.activeFilter", '');
+        cmp.set("v.filter", '');
+        cmp.set("v.selectedCompany", 'None');
+        cmp.set("v.selectedOwner", 'None');
+        cmp.set("v.selectedProduct", 'None');
+        cmp.set("v.selectedOrderType", 'None');
+        cmp.find("companyFilter").set("v.value", '');
+        cmp.find("ownerFilter").set("v.value", '');
+        cmp.find("productFilter").set("v.value", '');
+        cmp.find("orderTypeFilter").set("v.value", '');
+        
+        // Retrieves the name of the selected filter
+        var actionName = event.getParam('action').name;
+        console.log("colDef actionName: ", actionName);
+        // Retrieves the current column definition
+        // based on the selected filter
+        var colDef = event.getParam('columnDefinition');
+        console.log("colDef headerAction name: ", colDef.fieldName);
+        var header;
+        if (colDef.fieldName === "Product") {
+            header = "VPS_Product_Type__c";
+        } else if (colDef.fieldName === "ProjectId") {
+            header = "VPS_Project_Id__c";
+        }else if (colDef.fieldName === "ProductOffering") {
+            header = "VPS_ProductOffering_WKL__c";
+            console.log("header was: " + header);
+        } else if (colDef.fieldName === "Milestone" || colDef.fieldName === "linkMilestone") {
+            header = "VPS_Milestone_Status__c";
+            console.log("milestone header: " + header);
+        } else {
+            header = "Status"; 
+            console.log("status header: " + header);
+        }
+        cmp.set('v.header', header);
+        console.log('header: ' + header);
+        var columns = cmp.get('v.mycolumns');
+        var activeFilter = cmp.get('v.activeFilter');
+        //console.log("4");
+        console.log("colDef actionName: ", actionName);
+        console.log("activeFilter: ", activeFilter);
+        if (actionName !== activeFilter) {
+            var idx = columns.indexOf(colDef);
+            console.log('index headerAction: ', idx);
+            // Update the column definition with the updated actions data
+            var actions = columns[idx].actions;
+            actions.forEach(function (action) {
+                action.checked = action.name === actionName;
+            });
+            cmp.set('v.activeFilter', actionName);
+            console.log('actionName: ', actionName);
+            console.log('activeFilter=====>1' + cmp.get('v.activeFilter'));
+            helper.updateOrderWorkList(cmp, header, helper);
+            cmp.set('v.mycolumns', columns);
+            
+        }
+    },
+    
+    //Start of David's functions
+    updateCompany : function(component, event, helper) {
+    	var value = event.getParam("value");
+        component.set("v.selectedCompany", value);
+    },    
+    updateOwner : function(component, event, helper) {
+      	var value = event.getParam("value");
+      	component.set("v.selectedOwner", value);
+    },    
+    updateProduct : function(component, event, helper) {
+        var value = event.getParam("value");
+        component.set("v.selectedProduct", value);
+    },  
+//VBGSD-153
+	updateOrderType : function(component, event, helper) {
+        var value = event.getParam("value");
+        component.set("v.selectedOrderType", value);
+    },	
+    updateOrders : function(component, event, helper) {
+        console.log("Controller updateOrders");
+        console.log('Updating...');
+        console.log('Company: ' + component.get("v.selectedCompany"));
+        console.log('Owner: ' + component.get("v.selectedOwner"));
+        console.log('Product: ' + component.get("v.selectedProduct"));
+        console.log("5");
+        //reset currentCount and enableInfiniteLoading to default every time a new filter is applied
+        //for lazy loading
+		component.set("v.Spinner", true); //kc									  
+        component.set("v.currentCount", component.get("v.initialRows"));
+        component.set("v.enableInfiniteLoading", true);
+        //clear all filters except advanced search
+        component.set("v.filter", '');
+        component.set("v.header", '');
+        component.set("v.activeFilter", 'all');
+        var summaryPageUrl = ''; //TOLLFREE VARIABLE
+        var action = component.get('c.updateRecords');
+        action.setParams({"Company": component.get("v.selectedCompany"),
+                          "Owner": component.get("v.selectedOwner"),
+                          "Product": component.get("v.selectedProduct"),
+                          "OrderType": component.get("v.selectedOrderType"),
+                          "rowLimit": component.get("v.initialRows"),
+                          "rowOffset": 0
+                          });   
+        
+       
+        
+        action.setCallback(this,function(response){
+            var state = response.getState();
+            console.log('Controllergetrecords1state1 ====> '+state);
+            
+            if(state === 'SUCCESS'){
+                
+                var records =response.getReturnValue().Orderdatalst;
+                component.set("v.totalRows", response.getReturnValue().totalRecords);
+                var listdata=[];
+                var flagVal;
+                var display;
+                var showIcon;
+                var frameUrl = '';
+                var summaryPageUrl = '';//TollFree Variable
+				//new code starts
+				var country;
+				//new code ends
+                var pathElements = window.location.pathname.split("/");
+                if(pathElements.indexOf("Partner") != -1) {
+                    frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                } else {
+                    frameUrl = window.location.origin + '/s/';
+                } 
+                var navigateToUrl = '';
+                var navigateToMilestoneUrl ='';
+                //records.forEach(function(record){
+                for(var i=0;i<records.length;i++){
+						   //Start -Revemp Project - Surendra
+					var navigateToUrl = '';
+					var linkURL = JSON.parse(records[i].Orderdata.link);
+					var encodedHash = encodeURIComponent('#');
+					var encodedQuestion = encodeURIComponent('?');
+					var encodedAmp = encodeURIComponent('&');
+					var encodedFSlash = encodeURIComponent('/');
+					var encodedEqual = encodeURIComponent('=');
+					// New Code Added for Revemp Project [SKB] 
+                    showIcon = 'utility:copy';
+					display = (records[i].Orderdata.flag===true ? ' redc' : 'blackc');
+					flagVal=records[i].Orderdata.flag ===true ? 'hasFlag' : '';
+					//var OrderStatus =records[i].Orderdata.status ;
+                    var OrderStatus =records[i].Orderdata.Status ;
+					//new code starts
+						/* Sonal logic Start*/	
+                        //country = records[i].quote.Country__c;	
+                        country = records[i].Orderdata.Country;	
+						console.log("service@@@ ##location country is:"+country);   	
+						/* Sonal logic end*/
+					//new code ends
+                    console.log("OrderStatus@@@"+OrderStatus);
+                    helper.translateProductOffering(records[i]);
+                    console.log("records[i].Orderdata.status@@@"+records[i].Orderdata.Status);
+                    //Order Worklist filter fix by Mohan
+					if(records[i].Orderdata.Status == 'New'){    
+                        navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                        navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                        navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                        //yinfa ITR-3138
+                        if (records[i].Orderdata.ProductType == 'Switched E-Line') {
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + 'lightning' + encodedAmp + encodedAmp;
+                        } else {
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                        }
+                        navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                        
+                        navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'Normal' + encodedAmp; 
+                        navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp; 						
+                        navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                       // debugger;
+                        console.log('ServicePlatform****'+records[i].Orderdata.ServicePlaform);
+                        console.log('ProductType****'+records[i].Orderdata.ProductType);
+                        console.log('Product*****'+records[i].Orderdata.product);
+                        console.log('RelatedOrderId****'+records[i].Orderdata.RelatedOrderId);                                               
+                        
+                        if((records[i].Orderdata.OrderType == 'Install') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                        {
+                            var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                            
+                            var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                            if(records[i].Orderdata.Name == "BobJohnOrder"){
+                                console.log("Product@@@@"+ProductType);
+                            }
+                            if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                if(strserviceplatform.includes('VzB')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                }
+                                else if(strserviceplatform.includes('VzT')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                }
+                            }
+                            else if(records[i].Orderdata.productCode == 'IDS_OFFER_IDA'){//IDA - Added by Manoj
+								navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDA/'); //for MPL										
+							}							
+                            else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+								navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP																			
+							}
+							//new code ends
+
+                                else if(records[i].Orderdata.productCode == 'IDE_SERV_OFFR'|| records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                }else if(records[i].Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                }else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType != 'USPL'){
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL										
+                                }
+                                else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType == 'USPL'){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/USPL/'); //for USPL										
+                                }
+                                else if(records[i].Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                }else if(records[i].Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                }
+								//Moved this condition from above place to here
+								else if(strserviceplatform != undefined &&   ProductType != undefined && ProductType.includes('Dedicated')){ // Added by Ankush 	
+                                	
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/DLine OrderEntry Screen/'); //-- This is for Provide no need to change	
+                               	
+                            }
+								
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                            
+                        } 
+                        else if((records[i].Orderdata.OrderType == 'Install' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'Change')){
+                            
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                            
+                        }else if(records[i].Orderdata.OrderType == 'Disconnect')
+                        {
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                            
+                        }
+                        
+                        navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                        
+                    } 
+                    else if (records[i].Orderdata.Status == 'Open')
+                    {
+                        //Added change and disconnect condition - Balaji
+                        if (!$A.util.isEmpty(records[i].Orderdata.OSInstId) && (records[i].Orderdata.OrderType == 'Install' || records[i].Orderdata.OrderType == 'QuickOrder' || records[i].Orderdata.OrderType == 'Change' || records[i].Orderdata.OrderType == 'Disconnect' || records[i].Orderdata.OrderType == 'Move') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined)) { //resume                                                                                          
+                            navigateToUrl = frameUrl + 'resumepage?orderStatus=' + records[i].Orderdata.Status + '&id=' + records[i].Orderdata.OSInstId; //line 234
+                        } 
+                        //code updated by ram.sahu as per balaji&hitesh approval @12-dec-2019 18:23pm starts
+                        else if(records[i].Orderdata.OrderType == 'Install' || records[i].Orderdata.OrderType == 'Change' || records[i].Orderdata.OrderType == 'Disconnect' || records[i].Orderdata.OrderType == 'Move'){
+                            //else if(records[i].Orderdata.OrderType == 'Install'){
+                            //code updated by ram.sahu as per balaji&hitesh approval @12-dec-2019 18:23pm ends
+                            navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                            
+                            navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'resume' + encodedAmp; 
+                            navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp ;							
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                            if((records[i].Orderdata.OrderType == 'Install') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                               
+                            {
+                                var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                                var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                                if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                    if(strserviceplatform.includes('VzB')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzT')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                    }
+                                }
+								//new code starts
+								else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+									navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP																			
+								}
+								
+								//new code ends
+                                else if(strserviceplatform != undefined && ProductType != undefined && ProductType.includes('Private')  &&  records[i].Orderdata.OfferType != 'USPL'){
+                                    if(strserviceplatform.includes('VzT')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change                                                           												navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                    } 									
+                                }
+                                    else if(records[i].Orderdata.productCode == 'IDE_SERV_OFFR' ||records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                    }else if(records[i].Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                    }else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType != 'USPL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL										
+                                    }
+                                        else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType == 'USPL'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/USPL/'); //for MPL										
+                                        }
+                                
+                                            else if(records[i].Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                            }else if(records[i].Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                            }
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                
+                            }							
+                            else if((records[i].Orderdata.OrderType == 'Install' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'Change')){
+                                
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                
+                            }else if(records[i].Orderdata.OrderType == 'Disconnect')
+                            {
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                
+                            }	
+                                else if(records[i].Orderdata.OrderType == 'Move')
+                                {
+                                    if(records[i].Orderdata.productCode == 'ETH_ELINE_PREMIER_UNI'){
+                                        if(records[i].Orderdata.ServicePlaform == 'VzT'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MACDMoVE/'); // for Discoonect -- fromParent OS Disconnect
+                                            
+                                        }
+                                        else{
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveEVPL/'); // for Discoonect -- fromParent OS Disconnect
+                                            
+                                        }
+                                        
+                                    }
+                                    else if(records[i].Orderdata.productCode == 'IDS_OFFER_IDA'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveIDA/'); // for Discoonect -- fromParent OS Disconnect
+                                        
+                                    }
+                                     else if(records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT'  ||records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveIDE/'); // for Discoonect -- fromParent OS Disconnect
+                                            
+                                      }
+                                     else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && records[i].Orderdata.ServicePlaform == 'VzB' ){
+                                          navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveMPL/'); // for Discoonect -- fromParent OS Disconnect
+                                                
+                                      }
+                                      else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && (records[i].Orderdata.ServicePlaform == 'VzB Option1' ||  records[i].Orderdata.ServicePlaform == 'VzB Option2')){
+                                             navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveUSPL/'); // for Discoonect -- fromParent OS Disconnect
+                                                    
+                                       }
+                                      else if((records[i].Orderdata.productCode == 'CORE_PL_OFR_PTM') ||(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && records[i].Orderdata.ServicePlaform == 'VzT' )){
+                                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveDS1DS3/'); // for Discoonect -- fromParent OS Disconnect
+									  }
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId;
+                                }
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true'); // QuoteId need to add in backend
+                        }
+                            else if(records[i].Orderdata.OrderType == 'QuickOrder'){
+                                navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                                navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                                
+                                navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'resume' + encodedAmp; 
+                                navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp ;                                                                                                  
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                                if((records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                                {
+                                    console.log('Quick order Url framing');
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL'); //-- This is for Provide no need to change
+                                    var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                                    var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                                    if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                        if(strserviceplatform.includes('VzB')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL'); //-- This is for Provide no need to change
+                                        }
+                                        else if(strserviceplatform.includes('VzT')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL'); //-- This is for Provide no need to change
+                                        }
+                                    }
+                                    else if(ProductType != undefined && ProductType.includes('Private')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Quick Order/'); //-- This is for Provide no need to change                                                           
+                                    } 
+                                    
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                    console.log('Quick order Url framing navigateToUrl'+navigateToUrl);
+                                }
+                                else if((records[i].Orderdata.OrderType == 'QuickOrder' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'Change')){
+                                    
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.assetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    
+                                }else if(records[i].Orderdata.OrderType == 'Disconnect')
+                                {
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.assetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                    
+                                }                                                                                                              
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true'); // QuoteId need to add in backend
+                            }
+                    }
+                    
+                    //Nalini new code changes starts
+                    //else if((records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted') && (records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.product == 'Switched E-Line')){
+   
+                
+//Nalini new code changes ends
+                    else if (records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Change Requested' || records[i].Orderdata.Status == 'Completed' || records[i].Orderdata.Status == 'Cancelled' || records[i].Orderdata.Status == 'Cancel Submit') 
+                        
+                        //else if (OrderStatus == 'Submitted' || OrderStatus == 'Error' || OrderStatus == 'Change Requested' || OrderStatus == 'Completed' || OrderStatus == 'Cancelled' || OrderStatus == 'Cancel Submit') 
+                        {
+                            console.log("OrderStatus1@@@"+OrderStatus);
+                            console.log("records[i].Orderdata.Status1@@"+records[i].Orderdata.Status);
+                            //navigateToUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId +'&product=' + records[i].Orderdata.product;  
+                            navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId ;
+                        	console.log("navigateToUrl1@@@"+navigateToUrl);
+                        }
+                    console.log("CX1");  
+                     if((records[i].Orderdata.Status == 'Submitted') && (records[i].Orderdata.Status == 'In Progress') && (records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.product == 'Switched E-Line')){
+    navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId; 
+    console.log("CX2");
+} 
+                    navigateToMilestoneUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId  +'&product=' + records[i].Orderdata.product;
+                    if(records[i].Orderdata.Name == 'IIUUYY' ){
+                        console.log("navigateToMilestoneUrl1@@@"+navigateToMilestoneUrl);
+                    }
+                    if(records[i].Orderdata.Name == 'dfoi76' ){
+                        console.log("navigateToMilestoneUrl2@@@"+navigateToMilestoneUrl);
+                    }
+				if(records[i].Orderdata.Name == 'IIUUYY' ){
+                        console.log("ra123@@@"+navigateToUrl);
+                    }                      
+                    console.log('ED==records[i].Orderdata:'+JSON.stringify(records[i].Orderdata));
+                    console.log('ED==Milestone:'+records[i].Orderdata.milestoneStatus);             
+					
+                    //TOLLFREE CODE STARTS
+                    console.log('####### status : '+records[i].Orderdata.Status);
+                    //itr 3767
+                        //if(records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'Error' ){
+                        if(records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Completed' ){
+                            console.log('####### Product : '+records[i].Orderdata.product);
+                            console.log('####### ProductOffering : '+records[i].Orderdata.productOffering);
+                            if(records[i].Orderdata.productOffering == 'US Toll Free' || records[i].Orderdata.productOffering == 'ITFS Toll Free' || records[i].Orderdata.productOffering == 'UIFN Toll Free'){
+                                var pathElements = window.location.pathname.split("/");
+                                if(pathElements.indexOf("Partner") != -1) {
+                                    frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                                } else {
+                                    frameUrl = window.location.origin + '/s/';
+                                }
+								summaryPageUrl = frameUrl + 'tollfreesummarypage?id='+records[i].Orderdata.orderId;
+                                navigateToMilestoneUrl = frameUrl+'tollfreemilestonespage?id=' + records[i].Orderdata.orderId ;
+                                navigateToUrl = frameUrl+'tollfreeorderstatuspage?id=' + records[i].Orderdata.orderId ;
+                            }
+                        }
+                        //TOLLFREE CODE ENDS
+                    //vrd changes starts
+                    if(records[i].Orderdata.quoteDescription == 'VRD'){
+                        if(records[i].Orderdata.productOffering == 'IDE - Tiered'){
+                            records[i].Orderdata.productOffering ='IDS - Tiered';
+                        }
+                        else if(records[i].Orderdata.productOffering == 'IDE - Burstable'){
+                            records[i].Orderdata.productOffering = 'IDS - Burstable';
+                        }
+                    }
+                    //vrd changes ends
+                    listdata.push({
+                        displayClass 		  : display,
+                        displayStatusClass	  : (records[i].Orderdata.Status == 'Open'||records[i].Orderdata.Status == 'New')? 'disable-click' : 'blackc',
+                        displayMilestoneClass : (records[i].Orderdata.milestoneStatus == null || records[i].Orderdata.milestoneStatus == undefined )? 'display-milestone' :'blackc',
+                        flagIconName     	  : flagVal,
+                        flagIconColor		  : 'red',
+                        orderId               : records[i].Orderdata.orderId,
+                        Name   				  : records[i].Orderdata.Name,
+                        ProjectId			  : records[i].Orderdata.projectId,//projectId,
+                        //Product				  : records[i].Orderdata.product, //product
+                        Product 			  : (records[i].Orderdata.quoteDescription == 'VRD')? 'Internet Dedicated +' : records[i].Orderdata.product,//vrd changes
+                        ProductOffering		  : records[i].Orderdata.productOffering,//productOffering,
+                        SubmittedDate		  : records[i].Orderdata.dateSubmitted,// dateSubmitted,
+                        RequestedDueDate	  : records[i].Orderdata.dueDate,//dueDate,	
+                        Status 				  : records[i].Orderdata.Status,
+                        Milestone			  : records[i].Orderdata.milestoneStatus,
+                     
+						//linkName 			  : (records[i].Orderdata.product == 'Inbound Voice Services') ? summaryPageUrl :navigateToUrl,
+						linkName 			  : (records[i].Orderdata.product == 'Inbound Voice Services' && (records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Completed' )) ? summaryPageUrl :navigateToUrl,
+                        Copy                  : records[i].Orderdata.orderId,
+                        linkMilestone		  : navigateToMilestoneUrl,
+                        statuslinkMilestone	  : (records[i].Orderdata.product == 'Inbound Voice Services') ? navigateToUrl : navigateToMilestoneUrl
+                    });
+                    
+                    
+                }   
+               // });
+               
+                console.log("-->"+JSON.stringify(records));
+                component.set("v.orderList", listdata);
+                console.log("orderList1111-->"+component.get("v.orderList"));
+            }
+			component.set("v.Spinner", false); //kc									   
+        });
+        $A.enqueueAction(action);
+    },
+    
+    populateFilters : function(component,event,helper){
+        var action = component.get("c.getAccounts");
+        console.log("orderworklist");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            console.log('Controllergetrecords1state4 ====> '+state);
+            if(state === "SUCCESS")
+            {
+                var accounts = response.getReturnValue();
+                console.log('accounts' + accounts);
+                var result= [];
+                for(var i=0;i<accounts.length;i++)
+                {
+                    var option = {
+                        "label" : accounts[i].VPS_CLE_NAME__c + " - " + accounts[i].Name,
+                        "value" : accounts[i].Id
+                    };
+                    result.push(option);
+                }
+                var option = {
+                    "label" : "All",
+                    "value" : "None"
+                };
+                result.push(option);
+        		component.set("v.companyOptions", result);
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+	    $A.enqueueAction(action);
+        
+        var action = component.get("c.getUsers"); 
+        action.setCallback(this, function(response) {
+			var state = response.getState();
+            console.log('Controllergetrecords1state2 ====> '+state);
+            if(state === "SUCCESS")					  	
+            {					
+                console.log('response.getReturnValue()' + response.getReturnValue());
+            	var Users = response.getReturnValue();  
+            	//Users.sort((a, b) => (a.Name > b.Name) ? 1 : -1)//new
+				Users.sort((a, b) => a.Name.localeCompare(b.Name));
+                var result = [];
+                for(var i=0;i<Users.length;i++)
+                {
+                	var option = {
+                    	//"label" : "Owner - " + Users[i].Name,
+                        "label" : Users[i].Name,
+                    	"value" : Users[i].Id
+                	};
+                    result.push(option);
+                }
+                var option = {
+                    "label" : "All",
+                    "value" : "None"
+                }
+                result.push(option);
+                component.set("v.ownerOptions", result);
+            }
+            else
+            {
+                console.log("State was " + state);
+            }
+        });
+        $A.enqueueAction(action);
+        
+        var action = component.get("c.getProducts");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            console.log('Controllergetrecords1state3 ====> '+state);
+            if(state === "SUCCESS")
+            {
+            	var result = [];
+                var products = response.getReturnValue();
+                console.log('Number was: ' + products.length);
+ 
+                for(var i=0;i<products.length;i++)
+                {
+                    var option = {
+                        "label" : products[i],
+                        "value" : products[i]
+                    }
+                    result.push(option);
+                }
+                
+                option = {
+                    "label":"All",
+                    "value":"None"
+                };
+                result.push(option);
+                component.set("v.productOptions", result);
+               // console.log("result check----"+result.size());
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+        $A.enqueueAction(action);
+        
+		//Sandipan start
+		var action = component.get("c.getOrderTypes");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if(state === "SUCCESS")
+            {
+            	var result = [];
+                var types = response.getReturnValue();
+                for(var i=0;i<types.length;i++)
+                {
+                    var option = {
+                        "label" : types[i],
+                        "value" : types[i]
+                    }
+                    result.push(option);
+                }
+                
+                option = {
+                    "label":"All",
+                    "value":"None"
+                };
+                result.push(option);
+                component.set("v.orderTypeOptions", result);
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+        $A.enqueueAction(action);
+		//Sandipan end
+    },
+	//End of David's functions
+	
+	 handleLoadMore : function(component, event, helper) {
+        console.log("Controller handleLoadMore");
+        console.log("totalRows handleloadmore: ", component.get("v.totalRows"));
+        console.log("currentCount handleloadmore: ", component.get("v.currentCount"));
+         
+        if(!(component.get("v.currentCount") >= component.get("v.totalRows"))){
+            //To display the spinner
+            //event.getSource().set("v.isLoading", true);
+            //To handle data returned from Promise function
+            console.log("before loadData helper");
+            component.set("v.Spinner", false);
+            //debugger;
+            helper.loadData(component, event, helper).then(function(data) {
+                console.log("after loadData helper");
+                var currentData = component.get("v.orderList");
+                console.log("component sortDirection: ", component.get("v.sortDirection"));
+                
+                               //Need to check who added these lines starts
+                // Added on Mar/20/2020 to clean up the wording on the Product Offering
+               // for (var i = 0; i < data.length; i++){
+                 //   helper.translateProductOfferingAfterLoadMore(data[i]);
+               //}
+              //Need to check who added these lines ends
+              
+                if(component.get("v.sortDirection") != true) {
+                    var sortedBy = component.get("v.sortBy");
+                	var sortDirection = component.get("v.sortDirection");
+                    var reverse = sortDirection !== 'asc';
+                    var newData = currentData.concat(data);
+                    console.log("before sort: ", newData);
+                    sortedBy = (sortedBy == 'linkName') ? 'Name' : sortedBy;    // Handle Hyperlink field
+                    newData.sort(helper.sortBy(sortedBy, reverse));
+                } else {
+                    var newData = currentData.concat(data);
+                    console.log("handleLoadMore==" + currentData.length + ", " + data.length + ", " + newData.length);
+                }
+                component.set("v.orderList", newData);
+                console.log("current w/ new: ", component.get("v.orderList"));
+                //To hide the spinner
+                event.getSource().set("v.isLoading", false);
+            });
+            
+        } else {
+            //To stop loading more rows
+            component.set("v.enableInfiniteLoading", false);
+            event.getSource().set("v.isLoading", false);
+            console.log("not loading more");
+        }
+    }, //end handleLoadMore
+    
+    
+    clearfilter: function(component, event, helper) {
+        console.log("Controller clearfilter");
+        var headerFilter = component.get("v.activeFilter");
+        console.log("headerFilter clear: " + headerFilter);
+        var filter = component.get("v.filter");
+        console.log('====clearFilter===>'+filter);
+        var myEvent = $A.get("e.c:SearchKeyChange");
+        console.log('====Event clearFilter===>', myEvent);
+        
+        myEvent.setParams({"searchKey": ''});
+        component.set("v.currentCount", component.get("v.initialRows"));
+        component.set("v.enableInfiniteLoading", true);
+        component.set("v.filter",'');
+        component.set("v.activeFilter",'all');
+        component.set("v.header", '');
+        component.set("v.selectedCompany", 'None');
+        component.set("v.selectedOwner", 'None');
+        component.set("v.selectedProduct", 'None');
+        component.set("v.selectedOrderType", 'None');
+        component.find("companyFilter").set("v.value", '');
+        component.find("ownerFilter").set("v.value", '');
+        component.find("productFilter").set("v.value", '');
+        component.find("orderTypeFilter").set("v.value", '');
+        myEvent.fire();
+        
+    },
+    
+    handleRowAction : function(component, event, helper) {
+        var action = event.getParam('action');
+        var row = event.getParam('row');
+        var flagDisplay = row.displayClass;
+        console.log('action name:::', action.name);
+		//new code starts
+		if(action.name == 'copyOrder'){	
+            var orderId = row.Copy;	
+            helper.cloneOrder(component, event, helper, orderId);	
+        }else if(action.name == 'flagClick') {
+			//new code ends
+            component.set('v.orderId', row.orderId);
+            console.log('orderId:::', row.orderId);
+            helper.openModal(component, helper, flagDisplay);
+        }
+    },
+    
+    editFlag : function(component, event, helper) {
+        helper.editFlagHelper(component, event, helper);
+    },
+    
+    closeModal : function(component, event, helper) {
+        component.set('v.isOpen', false);
+    },
+    /*******PPMHJCIAAA-200**************/
+    handlevoice : function(component, event, helper) {
+        var frameUrl = '';
+       	var pathElements = window.location.pathname.split("/");
+          if(pathElements.indexOf("Partner") != -1) {
+               frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+            } else {
+              frameUrl = window.location.origin + '/s/';
+            } 
+              var URL = frameUrl+'searchtollfreenumber';
+        	  console.log('navigate url',URL);
+        	  var navigate = $A.get("e.force:navigateToURL");
+              navigate.setParams({ 
+                    "url":URL              
+                });
+               
+                $A.get('e.force:refreshView').fire();
+                navigate.fire();
+        console.log('navigate url after');
+    }
+})
