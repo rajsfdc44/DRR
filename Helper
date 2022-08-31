@@ -1,0 +1,2074 @@
+({
+    fetchOrderHelper : function(component, event, helper) {
+		console.log("Helper fetchOrderHelper");
+		component.set("v.Spinner", true); //kc									  
+		var summaryPageUrl = ''; //TOLLFREE
+        var ProjectIdHeader= [
+            {label: 'All',check: true, name:'all' },
+            { label: '1111', checked: false, name:'1111'},
+            /*{ label: 'UIHKL', checked: false, name:'UIHKL'},
+            { label: 'TestPrj121', checked: false, name:'TestPrj121'}*/
+            { label: 'test', checked: false, name: 'test'}];
+        var ProductHeader= [
+            { label: 'All',check: true, name:'all' },
+            { label: 'Switched E-Line', checked: false, name:'Switched E-Line'},
+            { label: 'Private Line', checked: false, name:'Private Line'},
+            { label: 'Internet Dedicated Ethernet', checked: false, name:'Internet Dedicated Ethernet'},
+            { label: 'Wavelength Solutions', checked: false, name:'Wavelength Solutions'}, 
+            { label: 'SIP Gateway', checked: false, name:'SIP Gateway'},
+            { label: 'GIPC', checked: false, name:'GIPC'},  
+			//new code starts
+			{ label: 'Private IP', checked: false, name:'Private IP'},
+            { label: 'FTTI', checked: false, name:'FTTI'}
+            //new code ends
+        ];
+        var ProductOfferingAction= [
+           { label: 'All',check: true, name:'all' },
+            /*{ label: 'GIPC-Direct Dial', checked: false, name:'GIPC-Direct Dial'},*/
+            { label: 'DS1', checked: false, name:'DS1'},     
+            { label: 'DS3', checked: false, name:'DS3'},
+           /*{ label: 'UNI/EVC Combo', checked: false, name:'UNI/EVC Combo'},*/  /*ITR_2969_revert*/
+            { label: 'EVC Standalone', checked: false, name:'EVC Standalone'},
+             { label: 'IDE - Burstable', checked: false, name:'IDE - Burstable'},
+             { label: 'IDE - Tiered', checked: false, name:'IDE - Tiered'},
+              { label: 'IDS - Burstable', checked: false, name:'IDS - Burstable'},//VRD changes
+            { label: 'IDS - Tiered', checked: false, name:'IDS - Tiered'},//VRD changes
+            { label: 'ITFS Toll Free', checked: false, name:'ITFS Toll Free'},
+            { label: 'NNI Port & Access', checked: false, name:'NNI Port & Access'},
+            { label: 'NNI Port Only', checked: false, name:'NNI Port Only'},
+            { label: 'NNI Standalone', checked: false, name:'NNI Standalone'},
+            //new code starts
+			{ label: 'PIP NNI Port & Access',checked: false,name:'PIP NNI Port & Access'},
+			{ label: 'PIP Port & Access',checked: false,name:'PIP Port & Access'},
+			//new code end
+            
+            { label: 'Point to Multipoint', checked: false, name:'Point to Multipoint'},
+			{ label: 'Point to Mux', checked: false, name:'Point to Mux'},			
+            { label: 'Point to Point', checked: false, name:'Point to Point'},
+			{ label: 'Point-to-Point', checked: false, name:'Point-to-Point'},
+            
+           /* { label: 'TLS',checked: false,name:'TLS'},*/
+            { label: 'UIFN Toll Free', checked: false, name:'UIFN Toll Free'},
+            { label: 'UNI EVC', checked: false, name:'UNI EVC'},
+			{ label: 'UNI Standalone', checked: false, name:'UNI Standalone'},
+            { label: 'US Toll Free', checked: false, name:'US Toll Free'},             
+             { label: 'Wavelength Solutions', checked: false, name:'Wavelength Solutions'},
+             { label: 'FTTI', checked: false, name:'FTTI'}
+            
+			
+			];
+        /*{ label: 'DS1', checked: false, name:'DS1'},     
+            { label: 'DS3', checked: false, name:'DS3'},
+            { label: 'ERS PREMIER EVC', checked: false, name:'ERS PREMIER EVC'},
+            { label: 'ERS Premier UNI', checked: false, name:'ERS Premier UNI'},
+            { label: 'NNI Port & Access', checked: false, name:'NNI Port & Access'},
+            { label: 'NNI Port Only', checked: false, name:'NNI Port Only'},
+            { label: 'NNI Standalone', checked: false, name:'NNI Standalone'},
+            { label: 'Point to Point', checked: false, name:'Point to Point'},
+            { label: 'Point to Mux', checked: false, name:'Point to Mux'},
+            { label: 'TLS',checked: false,name:'TLS'},
+            { label: 'UNI EVC', checked: false, name:'UNI EVC'}];*/
+        
+        
+        var StatusHeader= [
+            {label: 'All',check: true, name:'all' },
+            { label: 'Accepted', checked: false, name:'Accepted'},
+            { label: 'Activated', checked: false, name:'Activated'},
+            { label: 'Cancel', checked: false, name:'Cancel'},
+            { label: 'Cancel Submit', checked: false, name:'Cancel Submit'},
+            { label: 'Cancelled', checked: false, name:'Cancelled'},
+            { label: 'Change Requested', checked: false, name:'Change Requested'},
+            { label: 'Committed', checked: false, name:'Committed'},
+            { label: 'Completed', checked: false, name:'Completed'},
+            { label: 'Customer Hold', checked: false, name:'Customer Hold'},
+            { label: 'Draft', checked: false, name:'Draft'},
+            { label: 'Error',check: true, name:'Error' },
+            { label: 'Internal Hold', checked: false, name:'Internal Hold'},
+            { label: 'Jeopardy', checked: false, name:'Jeopardy'},
+            { label: 'New', checked: false, name:'New'},
+            { label: 'Open', checked: false, name:'Open'},
+            { label: 'Submitted', checked: false, name:'Submitted'},
+            { label: 'Trouble Shooting ', checked: false, name:'Trouble Shooting '},
+            { label: 'In Progress', checked: false, name:'In Progress'}
+        ];         
+        var MilestoneHeader= [
+            {label: 'All',check: true, name:'all' },
+            {label: 'Acceptance',check: true, name:'Acceptance' },
+            { label: 'Activation', checked: false, name:'Activation'},
+            { label: 'Build', checked: false, name:'Build'},
+			{ label: 'Commitment', checked: false, name:'Commitment'},
+			{ label: 'Completion', checked: false, name:'Completion'},
+            { label: 'Confirmation', checked: false, name:'Confirmation'},
+            { label: 'FOC Summary', checked: false, name:'FOC Summary'},
+            { label: 'Network Evaluation', checked: false, name:'Network Evaluation'},
+            { label: 'Provisioning', checked: false, name:'Provisioning'}];
+			//new code starts
+			var iconNameVal = component.get("v.OrderNameIcon");
+			//new code ends
+        var cols = [];
+        cols.push(
+            
+            {label: ' ', 
+             fieldName: 'VPS_OrderFlag__c' , 
+             sortable:true,   
+             type: 'button', 
+             iconName: 'utility:sort',
+             typeAttributes: {
+                 name: 'flagClick',
+                 label: { fieldName: 'Flag' }, 
+                 iconName: {fieldName: 'flagIconName'},
+                 iconcolor: {fieldName: 'flagIconColor'},
+                 class: {fieldName: 'displayClass'},
+                 target: '_self',//'_blank',
+             }, 
+             cellAttributes:{
+                 class: { fieldName: 'displayClass'},
+                 iconName: { fieldName: 'flagIconName' }, 
+                 iconPosition: 'right',
+                 
+                 iconcolor: {fieldName: 'flagIconColor'} 
+             }, 
+             initialWidth: 20},
+            
+            
+            
+            
+            
+            /*
+			{label: ' ',
+            fieldName: 'orderId',
+            type: 'button',
+            typeAttributes: {
+                name: 'flagClick',
+                iconName: {fieldName: 'flagIconName'},
+                iconcolor: {fieldName: 'flagIconColor'},
+                class: {fieldName: 'displayClass'}
+            }
+            //initialWidth: 40
+           },
+             */
+            
+            {   label: 'Order Name', 
+             fieldName: 'linkName',  
+             type: 'url', 
+             sortable:true,   
+             //iconName: 'utility:sort',
+			 //new code starts
+			 iconName: iconNameVal,
+			 //new code ends
+             typeAttributes: {
+                 label: { fieldName: 'Name' }, 
+                 tooltip: {  fieldName: 'Name'},
+                 target: '_self',//'_blank',
+             }, 
+             cellAttributes: {
+                 class: { fieldName: 'displayClass' } ,
+                 iconPosition: 'right', 	// Anthony
+                 style:'font-weight:bold !important;font-family:NeueHaasGroteskDisplayBold !important;'
+             }, initialWidth: 150
+            },
+            {
+                label: 'Project ID', 
+                fieldName: 'ProjectId', 
+                type: 'text',
+                sortable:true,
+                iconName: 'utility:sort',
+                cellAttributes: { 
+                    class: { fieldName: 'displayClass' },
+                    iconPosition: 'right', 	// Anthony
+                    style:'font-weight:normal !important;font-family:NeueHaasGroteskText,sans-serif !important;',
+                },
+                actions: ProjectIdHeader,		// Anthony
+                initialWidth: 140			// Anthony
+            },
+            {
+                label: 'Product', 
+                fieldName: 'Product', 
+                type: 'text',
+                sortable:true,
+                iconName: 'utility:sort',
+                cellAttributes: { 
+                    class: { fieldName: 'displayClass' },
+                    iconPosition: 'right', 	// Anthony
+                    style:'font-weight:normal !important;font-family:NeueHaasGroteskText,sans-serif !important;',
+                },
+                actions: ProductHeader,	// Anthony
+                initialWidth: 160,			// Anthony
+                hideDefaultActions: true
+            },
+            {
+                label: 'Product Offering', 
+                fieldName: 'ProductOffering', 
+                type: 'text',
+                sortable:true,
+                iconName: 'utility:sort',
+                iconPosition: 'right', 	// Anthony
+                cellAttributes: { 
+                    class: { fieldName: 'displayClass' },
+                    style:'font-weight:normal !important;font-family:NeueHaasGroteskText,sans-serif !important;',
+                    iconPosition: 'right'		// Anthony
+                },
+                actions: ProductOfferingAction,	// Anthony
+                initialWidth: 200,		// Anthony
+                hideDefaultActions: true
+            },
+            {
+                label: 'Submitted Date', 
+                fieldName: 'SubmittedDate', 
+                type: 'date-local', 
+                sortable:true,
+                iconName: 'utility:sort',
+                typeAttributes:{
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "2-digit"},
+                cellAttributes: { 
+                    class: { fieldName: 'displayClass' } ,
+                    iconPosition: 'right', 	// Anthony
+                    style:'font-weight:normal !important;font-family:NeueHaasGroteskText,sans-serif !important;' 
+                }, 
+                initialWidth: 164},	// Anthony
+            {
+                label: 'Requested Due Date', 
+                fieldName: 'RequestedDueDate', 
+                type: 'date-local', 
+                sortable:true,
+                iconName: 'utility:sort',
+                typeAttributes:{
+                    month: "2-digit",    
+                    day: "2-digit",
+                    year: "2-digit"},
+                cellAttributes: { 
+                    class: { fieldName: 'displayClass' } ,
+                    iconPosition: 'right', 	// Anthony
+                    style:'font-weight:normal !important;font-family:NeueHaasGroteskText,sans-serif !important;' 
+                }, 
+                initialWidth: 200
+            },
+            {
+                label: 'Status', 
+                fieldName: 'statuslinkMilestone', 
+                type: 'url',
+                title: 'name',
+                sortable:true,
+                iconName: 'utility:sort',
+                typeAttributes:{
+                    label: { fieldName: 'Status' }
+                },
+                cellAttributes: {  
+                    class: { fieldName: 'displayStatusClass' },
+                    iconPosition: 'right', 	// Anthony
+                    style:'font-weight:bold !important;font-family:NeueHaasGroteskDisplayBold !important; margin-left: 21px;'  ,
+                    iconName: { fieldName: 'utility:filter' },
+                    
+                },
+                actions: StatusHeader,	// Anthony
+                initialWidth: 105,			// Anthony
+                hideDefaultActions: true
+            },
+            {
+                label: 'Milestone', 
+                fieldName: 'linkMilestone', 
+                type: 'url',
+                title: 'name',
+                sortable:true,
+                iconName: 'utility:sort',
+                typeAttributes:{
+                    label: { fieldName: 'Milestone' }
+                },
+                cellAttributes: { 
+                    class: { fieldName: 'displayMilestoneClass' },
+                    iconPosition: 'right', 	// Anthony
+                    style:'font-weight:bold !important;font-family:NeueHaasGroteskDisplayBold !important;',
+                },  
+                actions: MilestoneHeader,		// Anthony
+                initialWidth: 145,			// Anthony
+                hideDefaultActions: true
+            }/*,
+            {label: 'Copy', 
+             fieldName: 'Copy' ,
+             type: 'button', 
+             typeAttributes: {
+                 iconName: { fieldName: 'copyIconName' },
+                 iconcolor: {fieldName: 'flagIconColor'},
+                 fieldName: 'Copy',name: 'copyOrder',
+             	//disabled : { fieldName : 'disableCopyOrder' },	
+                 //class: 'copyIcon'}
+             //disabled : { fieldName : 'true' }, 
+			 //new code starts
+			 // not working
+			 disabled : { fieldName : 'disableCopyOrder' },	
+                class: 'copyIcon'},
+			 //new code ends 
+			 
+             //   rowActions: actions },
+             
+             cellAttributes:{
+                 class: { fieldName: 'showCopyIcon' },
+                 iconSize:'large'},
+             
+             initialWidth: 90,
+            }*/
+        );
+        var actionProduct = component.get("c.getHeaderProducts");
+        // debugger;
+        actionProduct.setCallback(this, function(response){
+            var state = response.getState();
+            if(state === "SUCCESS") {
+                var values = response.getReturnValue();
+                var colActions = [{ label: 'All',check: true, name:'all' }];
+                for(var i=0;i<values.length;i++){
+                    console.log('Products: ' + i + values[i]);
+                    var option = { label: values[i], checked: false, name: values[i] };
+                    colActions.push(option);
+                }
+                var columns = component.get("v.mycolumns");
+                for(var item of columns) {
+                    if(item.label === "Product") {
+                        item.actions = colActions;
+                        component.set("v.mycolumns", columns);
+                    }
+                }
+            }
+            else {
+                console.log("State was: " + state);
+            }
+			component.set("v.Spinner", false); //kc										 
+        });
+        $A.enqueueAction(actionProduct);
+        var actionProductOfferings = component.get("c.getHeaderProductOfferings");
+        
+        actionProductOfferings.setCallback(this, function(response){
+            var state = response.getState();
+            if(state === "SUCCESS") {
+                var values = response.getReturnValue();
+                var colActions = [{ label: 'All',check: true, name:'all' }];
+                for(var i=0;i<values.length;i++){
+                    console.log('Product Offerings: ' + i + values[i]);
+                    var option = { label: values[i], checked: false, name: values[i]};
+                    colActions.push(option);
+                }
+                var columns = component.get("v.mycolumns");
+                for(var item of columns) {
+                    if(item.label === "Product Offering") {
+                        item.actions = colActions;
+                        component.set("v.mycolumns", columns);
+                    }
+                }
+            }
+            else {
+                console.log("State was: " + state);
+            }
+			component.set("v.Spinner", false); //kc										 
+        });
+        $A.enqueueAction(actionProductOfferings);
+        component.set('v.mycolumns',cols);
+        var action = component.get("c.getrecords1");
+        console.log("6");
+        //debugger;
+        var searchKey = event.getParam("searchKey");
+        action.setParams({"searchKey": searchKey == undefined ? '' : searchKey,
+                          "rowLimit": component.get("v.initialRows"),
+                          "rowOffset": 0});
+        console.log('searchkey11 is '+searchKey);
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            console.log('stateonload1 ====> '+state);
+            console.log('Helpergetrecords1state1 ====> '+state);
+            console.log('response.getReturnValue() =====> '+response.getReturnValue().Orderdatalst);
+            if (state === "SUCCESS") {    
+                console.log('Ramstateonload1 ====> '+state);
+                console.log('response.getReturnValue() =====> '+response.getReturnValue().Orderdatalst);
+                var records = response.getReturnValue().Orderdatalst;
+                console.log("records@@@@"+JSON.stringify(records));
+                var totalRows = response.getReturnValue().totalRecords;
+                component.set("v.totalRows", totalRows);
+                console.log("totalRows init: ", totalRows);
+                component.set("v.enableInfiniteLoading", true);
+                console.log("records: ", records);
+                var listdata=[];
+                var flagVal;
+                var display;
+                var showIcon;
+                var frameUrl = '';
+				//new code starts
+				var country;	
+                var disableCopyOrder;
+				//new code ends
+                var pathElements = window.location.pathname.split("/");
+                if(pathElements.indexOf("Partner") != -1) {
+                    frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                } else {
+                    frameUrl = window.location.origin + '/s/';
+                } 
+               // debugger;
+                var navigateToUrl = '';
+                var navigateToMilestoneUrl ='';
+                console.log('Print Comrade');
+                console.log('records****1'+records.length);
+                for(var i=0;i<records.length;i++)
+                {// Added for Revemp Project - Surendra /Start
+                    // Start -Revemp Project - Surendra
+                    var navigateToUrl = '';
+                    var linkURL = JSON.parse(records[i].Orderdata.link);
+                    var encodedHash = encodeURIComponent('#');
+                    var encodedQuestion = encodeURIComponent('?');
+                    var encodedAmp = encodeURIComponent('&');
+                    var encodedFSlash = encodeURIComponent('/');
+                    var encodedEqual = encodeURIComponent('=');
+                    var OrderStatus= records[i].Orderdata.Status;
+                    helper.translateProductOffering(records[i]);
+                    // New Code Added for Revemp Project [SKB] 
+                    //changes for copyorder by surender
+                    if(OrderStatus == 'New' || OrderStatus == 'Error' || OrderStatus == 'Jeopardy'){
+                        showIcon = '';
+                       disableCopyOrder = true;}
+                    else{
+                            showIcon='utility:copy';
+                        disableCopyOrder = false;
+                        }
+                    //showIcon= records[i].Orderdata.OrderType == 'QuickOrder' ? 'utility:copy' : '';
+                    display = (records[i].Orderdata.flag===true ? 'redc' : 'blackc');
+                    flagVal=records[i].Orderdata.flag ===true ? 'hasFlag' : '';
+					//new code starts
+					//
+					//Need to check with Eswara or Sonal Starts
+					/*
+					if(records[i].Orderdata.ProductName__c !== 'Wavelength Solutions' && records[i].disableCopy !='true')	
+                    {	showIcon = 'utility:copy';	
+                		disableCopyOrder = false;	
+                    } else{	
+                    	showIcon = '';	
+                    	disableCopyOrder = true;	
+                    }	
+                    */
+					//debugger;	
+                     /* Sonal logic Start*/	
+                        //country = records[i].quote.Country__c;	
+                        country = records[i].Orderdata.Country;	
+						console.log("service@@@ ##location country is:"+country);   	
+                     /* Sonal logic end*/
+					//Need to check with Eswara or Sonal Ends
+					//new code ends
+					
+                    if(records[i].Orderdata.Status == 'New'){    
+                        navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                        navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                        navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                        //yinfa ITR-3138
+                        if (records[i].Orderdata.ProductType == 'Switched E-Line') {
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + 'lightning' + encodedAmp + encodedAmp;
+                        } else {
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                        }
+                        navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                        navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                        
+                        navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'Normal' + encodedAmp; 
+                        navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp; 						
+                        navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                       // debugger;
+                        console.log('ServicePlatform****'+records[i].Orderdata.ServicePlaform);
+                        console.log('ProductType****'+records[i].Orderdata.ProductType);
+                        console.log('Product*****'+records[i].Orderdata.product);
+                        console.log('RelatedOrderId****'+records[i].Orderdata.RelatedOrderId);
+                        
+                        /* if((records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                        {
+                            console.log('entered in QuickOrder');
+                            var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                            var ProductType= records[i].Orderdata.ProductType;
+                            
+                            if( ProductType != undefined && ProductType.includes('Switched')){
+                                if(strserviceplatform.includes('VzB')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL/'); //-- This is for Provide no need to change
+                                }
+                                else if(strserviceplatform.includes('VzT')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL/'); //-- This is for Provide no need to change
+                                }
+                            }
+                            else if(ProductType != undefined && ProductType.includes('Private')){
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Quick Order/'); //-- This is for Provide no need to change                                                           
+                            } 
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.OrderId;
+                            
+                        }*/
+                        
+                        if((records[i].Orderdata.OrderType == 'Install') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                        {
+                            var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                            
+                            var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                            var productCode = records[i].Orderdata.productCode;
+                            if(records[i].Orderdata.Name == "BobJohnOrder"){
+                                console.log("Product@@@@"+ProductType);
+                            }
+                            if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                if(productCode.includes('ETH_ELINE_Point_To_Point')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL PTP/'); //-- This is for Provide no need to change
+                                }
+                                else if(strserviceplatform.includes('VzB')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                }
+                                else if(strserviceplatform.includes('VzT')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                }
+                            }
+                            else if(records[i].Orderdata.productCode == 'IDS_OFFER_IDA'){//IDA - Added by Manoj
+								navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDA/'); //for MPL										
+							}
+							/*Moving the below code snippet as a last condition --->Balaji
+                            //new code starts
+							else if(strserviceplatform != undefined &&   ProductType != undefined && ProductType.includes('Dedicated')){ // Added by Ankush 	
+                                	
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/DLine OrderEntry Screen/'); //-- This is for Provide no need to change	
+                               	
+                            }	*/
+                            else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+								navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP																			
+							}
+							//new code ends
+                          /*  else if(ProductType != undefined && ProductType.includes('Private')){	
+                                
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change                                                           										navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                            }*/ 
+                                else if(records[i].Orderdata.productCode == 'IDE_SERV_OFFR'|| records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                }else if(records[i].Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                }else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType != 'USPL'){
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL										
+                                }
+                                else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType == 'USPL'){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/USPL/'); //for USPL										
+                                }
+                                else if(records[i].Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                }else if(records[i].Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                }
+								//Moved this condition from above place to here
+								else if(strserviceplatform != undefined &&   ProductType != undefined && ProductType.includes('Dedicated')){ // Added by Ankush 	
+                                	
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/DLine OrderEntry Screen/'); //-- This is for Provide no need to change	
+                               	
+                            }
+								
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                            
+                        } 
+                        else if((records[i].Orderdata.OrderType == 'Install' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'Change')){
+                            
+                            //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                            
+                        }else if(records[i].Orderdata.OrderType == 'Disconnect')
+                        {
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                            navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                            //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                            
+                        }
+                        
+                        navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                        
+                    } 
+                    else if (records[i].Orderdata.Status == 'Open')
+                    {
+                        //Added change and disconnect condition - Balaji
+                        if (!$A.util.isEmpty(records[i].Orderdata.OSInstId) && (records[i].Orderdata.OrderType == 'Install' || records[i].Orderdata.OrderType == 'QuickOrder' || records[i].Orderdata.OrderType == 'Change' || records[i].Orderdata.OrderType == 'Disconnect' || records[i].Orderdata.OrderType == 'Move') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined)) { //resume                                                                                          
+                            navigateToUrl = frameUrl + 'resumepage?orderStatus=' + records[i].Orderdata.Status + '&id=' + records[i].Orderdata.OSInstId; //line 234
+                        } 
+                        //code updated by ram.sahu as per balaji&hitesh approval @12-dec-2019 18:23pm starts
+                        else if(records[i].Orderdata.OrderType == 'Install' || records[i].Orderdata.OrderType == 'Change' || records[i].Orderdata.OrderType == 'Disconnect' || records[i].Orderdata.OrderType == 'Move'){
+                            //else if(records[i].Orderdata.OrderType == 'Install'){
+                            //code updated by ram.sahu as per balaji&hitesh approval @12-dec-2019 18:23pm ends
+                            navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                            
+                            navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'resume' + encodedAmp; 
+                            navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp ;							
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                            //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/');
+                            //frameUrl = frameUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + linkURL.orderId;
+                            //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                            if((records[i].Orderdata.OrderType == 'Install') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                                /*{
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                            }*/
+                            {
+                                var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                                var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                                var productCode = records[i].Orderdata.productCode;
+                                if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                    if(productCode.includes('ETH_ELINE_Point_To_Point')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL PTP/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzB')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzT')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                    }
+                                }
+								//new code starts
+								else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+									navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP																			
+								}
+								
+								//new code ends
+                                else if(strserviceplatform != undefined && ProductType != undefined && ProductType.includes('Private')  &&  records[i].Orderdata.OfferType != 'USPL'){
+                                    if(strserviceplatform.includes('VzT')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change                                                           												navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                    } 									
+                                }
+                                    else if(records[i].Orderdata.productCode == 'IDE_SERV_OFFR' ||records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                    }else if(records[i].Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                    }else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType != 'USPL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL										
+                                    }
+                                        else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' &&  records[i].Orderdata.OfferType == 'USPL'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/USPL/'); //for MPL										
+                                        }
+                                
+                                            else if(records[i].Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                            }else if(records[i].Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                            }
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                
+                            }							
+                            else if((records[i].Orderdata.OrderType == 'Install' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'Change')){
+                                
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                
+                            }else if(records[i].Orderdata.OrderType == 'Disconnect')
+                            {
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                
+                            }	
+                                else if(records[i].Orderdata.OrderType == 'Move')
+                                {
+                                    if(records[i].Orderdata.productCode == 'ETH_ELINE_PREMIER_UNI'){
+                                        if(records[i].Orderdata.ServicePlaform == 'VzT'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MACDMoVE/'); // for Discoonect -- fromParent OS Disconnect
+                                            
+                                        }
+                                        else{
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveEVPL/'); // for Discoonect -- fromParent OS Disconnect
+                                            
+                                        }
+                                        
+                                    }
+                                    else if(records[i].Orderdata.productCode == 'IDS_OFFER_IDA'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveIDA/'); // for Discoonect -- fromParent OS Disconnect
+                                        
+                                    }
+                                     else if(records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT'  ||records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveIDE/'); // for Discoonect -- fromParent OS Disconnect
+                                            
+                                      }
+                                     else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && records[i].Orderdata.ServicePlaform == 'VzB' ){
+                                          navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveMPL/'); // for Discoonect -- fromParent OS Disconnect
+                                                
+                                      }
+                                      else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && (records[i].Orderdata.ServicePlaform == 'VzB Option1' ||  records[i].Orderdata.ServicePlaform == 'VzB Option2')){
+                                             navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveUSPL/'); // for Discoonect -- fromParent OS Disconnect
+                                                    
+                                       }
+                                      else if((records[i].Orderdata.productCode == 'CORE_PL_OFR_PTM') ||(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && records[i].Orderdata.ServicePlaform == 'VzT' )){
+                                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/MoveDS1DS3/'); // for Discoonect -- fromParent OS Disconnect
+									  }
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId;
+                                }
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true'); // QuoteId need to add in backend
+                        }
+                            else if(records[i].Orderdata.OrderType == 'QuickOrder'){
+                                navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                                navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                                
+                                navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'resume' + encodedAmp; 
+                                navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp ;                                                                                                  
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/');
+                                //frameUrl = frameUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + linkURL.orderId;
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                if((records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                                {
+                                    console.log('Quick order Url framing');
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL'); //-- This is for Provide no need to change
+                                    var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                                    var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                                    if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                        if(strserviceplatform.includes('VzB')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL/'); //-- This is for Provide no need to change
+                                        }
+                                        else if(strserviceplatform.includes('VzT')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL/'); //-- This is for Provide no need to change
+                                        }
+                                    }
+                                    else if(ProductType != undefined && ProductType.includes('Private')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Quick Order/'); //-- This is for Provide no need to change                                                           
+                                    } 
+                                    
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                    console.log('Quick order Url framing navigateToUrl'+navigateToUrl);
+                                }
+                                else if((records[i].Orderdata.OrderType == 'QuickOrder' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'Change')){
+                                    
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.assetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    
+                                }else if(records[i].Orderdata.OrderType == 'Disconnect')
+                                {
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.assetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                    
+                                }                                                                                                              
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true'); // QuoteId need to add in backend
+                            }
+                    }
+                    
+                    //Nalini new code changes starts
+                    //else if((records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted') && (records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.product == 'Switched E-Line')){
+   
+                
+//Nalini new code changes ends
+                    else if (records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Change Requested' || records[i].Orderdata.Status == 'Completed' || records[i].Orderdata.Status == 'Cancelled' || records[i].Orderdata.Status == 'Cancel Submit') 
+                        
+                        //else if (OrderStatus == 'Submitted' || OrderStatus == 'Error' || OrderStatus == 'Change Requested' || OrderStatus == 'Completed' || OrderStatus == 'Cancelled' || OrderStatus == 'Cancel Submit') 
+                        {
+                            console.log("OrderStatus1@@@"+OrderStatus);
+                            console.log("records[i].Orderdata.Status1@@"+records[i].Orderdata.Status);
+                            //navigateToUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId +'&product=' + records[i].Orderdata.product;  
+                            navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId ;
+                        	console.log("navigateToUrl1@@@"+navigateToUrl);
+                        }
+                    console.log("CX1");  
+                     if((records[i].Orderdata.Status == 'Submitted') && (records[i].Orderdata.Status == 'In Progress') && (records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.product == 'Switched E-Line')){
+    navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId; 
+    console.log("CX2");
+} 
+                    navigateToMilestoneUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId  +'&product=' + records[i].Orderdata.product;
+                    if(records[i].Orderdata.Name == 'IIUUYY' ){
+                        console.log("navigateToMilestoneUrl1@@@"+navigateToMilestoneUrl);
+                    }
+                    if(records[i].Orderdata.Name == 'dfoi76' ){
+                        console.log("navigateToMilestoneUrl2@@@"+navigateToMilestoneUrl);
+                    }
+				if(records[i].Orderdata.Name == 'IIUUYY' ){
+                        console.log("ra123@@@"+navigateToUrl);
+                    }                      
+                    console.log('ED==records[i].Orderdata:'+JSON.stringify(records[i].Orderdata));
+                    console.log('ED==Milestone:'+records[i].Orderdata.milestoneStatus);
+                    /* else if (records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Change Requested' ) { //milestone page  --
+                            navigateToUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId;
+                        } else if (records[i].Orderdata.Status == 'Completed' || records[i].Orderdata.Status == 'Cancelled' || records[i].Orderdata.Status == 'Cancel Submit') {
+                             
+                            //navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId;
+                            navigateToUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId;
+                        }*/
+                    
+                    
+                    //Commented for Revemp Project - Surendra
+                    
+                    /*
+                    navigateToUrl = '';
+                    //console.log('test url' + records[i].Orderdata.link);
+                    display = (records[i].Orderdata.flag===true ? 'redc' : 'blackc');
+                    flagVal=   (records[i].Orderdata.flag===true ? 'utility:priority' : '');                    
+                    //debugger;
+                    if(records[i].Orderdata.Status != 'New' && records[i].Orderdata.Status != 'Open'){
+                        navigateToUrl = frameUrl + 'ordermilestones?id='+records[i].Orderdata.OSInstId+'&orderId='+records[i].Orderdata.orderId ;
+                   		//console.log("navigateToUrl182@@@"+navigateToUrl);    	 
+                    }else if(records[i].Orderdata.Status == 'New'){
+                         	if(JSON.parse(records[i].Orderdata.link) != undefined ){
+                          var linkURL = JSON.parse(records[i].Orderdata.link);
+                          var encodedHash = encodeURIComponent('#');
+                          var encodedQuestion = encodeURIComponent('?');
+                          var encodedAmp = encodeURIComponent('&');
+                          var encodedFSlash = encodeURIComponent('/');
+                          var encodedEqual = encodeURIComponent('=');
+                          //     var frameUrl = 'https://vpscxmigra-vpsverizon.cs2.force.com/Partner/s/';
+                          //  Added today
+                          //var frameUrl = '';
+                          //var pathElements = window.location.pathname.split("/");
+                          //if(pathElements.indexOf("Partner") != -1) {
+                                 //frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                          //} else {
+                                 //frameUrl = window.location.origin + '/s/';
+                          //} 
+                          navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                          navigateToUrl = navigateToUrl + encodedFSlash + 'apex' ;
+                          navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                          navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                          navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/');
+                          //frameUrl = frameUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + linkURL.orderId;
+						  navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                          navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                          //if(!frameUrl.includes('undefined')){
+                                 //navigateToUrl = frameUrl;
+                             //}
+                             //console.log("navigateToUrl216@@@"+navigateToUrl);    
+                            }
+                    }else{
+                        //if(records[i].Orderdata.link.resumePage)
+                        //New Updation ----->
+                        /*
+                        navigateToUrl = frameUrl + 'resumepage?id='+records[i].Orderdata.OSInstId;
+						navigateToUrl = navigateToUrl + '&orderStatus=';
+						navigateToUrl = navigateToUrl + records[i].Orderdata.Status;
+						navigateToUrl = navigateToUrl + '&orderMilestoneStatus=';
+						navigateToUrl = navigateToUrl + records[i].Orderdata.milestoneStatus;
+						navigateToUrl = navigateToUrl + '&userHasDeliveryRole=';
+						navigateToUrl = navigateToUrl + records[i].Orderdata.userHasDeliveryRole;  
+                        //New Updation <-----
+                        */
+                    //navigateToUrl = frameUrl + 'resumepage?orderStatus=' + records[i].Orderdata.Status + '&id='+records[i].Orderdata.OSInstId;
+                    //console.log("navigateToUrl231@@"+navigateToUrl);
+                    //else
+                    //    navigateToUrl = '_blank';*/
+                    //}
+					
+                    //TOLLFREE CODE STARTS
+                    console.log('####### status : '+records[i].Orderdata.Status);
+                        if(records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Completed' ){
+                            console.log('####### Product : '+records[i].Orderdata.product);
+                            console.log('####### ProductOffering : '+records[i].Orderdata.productOffering);
+                            if(records[i].Orderdata.productOffering == 'US Toll Free' || records[i].Orderdata.productOffering == 'ITFS Toll Free' || records[i].Orderdata.productOffering == 'UIFN Toll Free'){
+                                var pathElements = window.location.pathname.split("/");
+                                if(pathElements.indexOf("Partner") != -1) {
+                                    frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                                } else {
+                                    frameUrl = window.location.origin + '/s/';
+                                }
+								summaryPageUrl = frameUrl + 'tollfreesummarypage?id='+records[i].Orderdata.orderId;
+                                navigateToMilestoneUrl = frameUrl+'tollfreemilestonespage?id=' + records[i].Orderdata.orderId ;
+                                navigateToUrl = frameUrl+'tollfreeorderstatuspage?id=' + records[i].Orderdata.orderId ;
+                            }
+                          /*  summaryPageUrl = frameUrl + 'tollfreesummarypage?id='+records[i].Orderdata.orderId;
+                            navigateToMilestoneUrl = frameUrl + 'tollfreemilestonespage?id='+records[i].Orderdata.orderId;
+                            navigateToUrl = frameUrl+'tollfreeorderstatuspage?id=' + records[i].Orderdata.orderId ;*/
+                        }
+                    
+                    //TOLLFREE CODE ENDS
+                    //vrd changes starts
+                    if(records[i].Orderdata.quoteDescription == 'VRD'){
+                        if(records[i].Orderdata.productOffering == 'IDE - Tiered'){
+                            records[i].Orderdata.productOffering ='IDS - Tiered';
+                        }
+                        else if(records[i].Orderdata.productOffering == 'IDE - Burstable'){
+                            records[i].Orderdata.productOffering = 'IDS - Burstable';
+                        }
+                    }
+                    listdata.push({
+                        displayClass 		  : display,
+                        displayStatusClass	  : (records[i].Orderdata.Status == 'Open'||records[i].Orderdata.Status == 'New')? 'disable-click' : 'blackc',
+                        displayMilestoneClass : (records[i].Orderdata.milestoneStatus == null || records[i].Orderdata.milestoneStatus == undefined )? 'display-milestone' :'blackc',
+                        flagIconName     	  : flagVal,
+                        flagIconColor		  : 'red',
+                        orderId               : records[i].Orderdata.orderId,
+                        Name   				  : records[i].Orderdata.Name,
+                        ProjectId			  : records[i].Orderdata.projectId,//projectId,
+                        //Product				  : records[i].Orderdata.product, //product
+						Product 				: (records[i].Orderdata.quoteDescription == 'VRD')? 'Internet Dedicated +' : records[i].Orderdata.product,//vrd changes
+                        ProductOffering		  : records[i].Orderdata.productOffering,//productOffering,
+                        SubmittedDate		  : records[i].Orderdata.dateSubmitted,// dateSubmitted,
+                        RequestedDueDate	  : records[i].Orderdata.dueDate,//dueDate,	
+                        Status 				  : records[i].Orderdata.Status,
+                        Milestone             : records[i].Orderdata.milestoneStatus,
+						linkName 			  : (records[i].Orderdata.product == 'Inbound Voice Services' && (records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Completed' )) ? summaryPageUrl :navigateToUrl,
+                        Copy                  : records[i].Orderdata.orderId,
+                        linkMilestone		  : navigateToMilestoneUrl,
+                        statuslinkMilestone	  : (records[i].Orderdata.product == 'Inbound Voice Services') ? navigateToUrl : navigateToMilestoneUrl,
+						disableCopyOrder 	  :disableCopyOrder
+                    });
+					//for line no. 771
+					//new code starts
+					//disableCopyOrder :disableCopyOrder,
+					//new code ends
+                    //console.log('listdata****5'+JSON.stringify(listdata));
+                    //component.set("v.orderList", listdata);
+                }
+                console.log('listdata****51'+JSON.stringify(listdata));
+                component.set("v.orderList", listdata);
+                console.log('listdata****2'+JSON.stringify(listdata));
+                component.set("v.allOrderList", listdata);
+                component.set("v.Spinner",false);
+                //component.set("v.enableInfiniteLoading", true);
+			}else{
+					console.log('State was: ' + state);
+				}
+            component.set("v.Spinner", false); //kc
+		
+        });
+        $A.enqueueAction(action);
+    },
+    
+    //function added by Sandra for lazy loading
+    loadData : function(component, event ,helper) {
+        console.log("Helper loadData");
+		component.set("v.Spinner", true); //kc									  
+		var summaryPageUrl = ''; //TOLLFREE Varibale
+        var searchKey = component.get("v.filter");
+        var activeFilter = component.get("v.activeFilter");
+        var header = component.get("v.header");
+        console.log(header);
+        console.log("searchKey loadData: " + searchKey);
+        var company = component.get("v.selectedCompany");
+        var owner = component.get("v.selectedOwner");
+        var product = component.get("v.selectedProduct");
+        console.log("searchFilter: ", searchKey);
+        console.log("company, owner, product: " + company + owner + product);
+        var orderType = component.get("v.selectedOrderType");//added Urder type for ITR 4596
+        return new Promise($A.getCallback(function(resolve){
+            var limit = component.get("v.initialRows");
+            var offset = component.get("v.currentCount");
+            console.log("limit before action: ", limit);
+            console.log("currentCount before action: ", offset);
+            var totalRows = component.get("v.totalRows");
+            
+            if (company != 'None' || owner != 'None' || product != 'None'|| orderType!='None'){
+                //var totalFilterRows = component.get("v.totalFilterRows");
+                //console.log("totalFilterRows loadMore: ", totalFilterRows);
+                console.log("totalRows w/ filter: ", totalRows);
+                if(limit + offset > totalRows) {
+                    limit = totalRows - offset;
+                }
+                //console.log("filter selected");
+                //console.log("filter limit: ", limit);
+                //console.log("filter offset: ", offset);
+                var action = component.get('c.updateRecords');
+                action.setParams({"Company": component.get("v.selectedCompany"),
+                                  "Owner": component.get("v.selectedOwner"),
+                                  "Product": component.get("v.selectedProduct"),
+                                  "OrderType": component.get("v.selectedOrderType"),
+                                  "rowLimit": limit,
+                                  "rowOffset": offset
+                                 });  
+            }
+            else if(activeFilter != 'all') {
+                var action = component.get("c.updateHeaderFilter");
+                console.log("total rows w/ header: " + totalRows);
+                if(limit + offset > totalRows){
+                    limit = totalRows - offset;
+                }
+                if(header == 'VPS_ProductOffering_WKL__c') {	// Change Filter value from GUI to DB		
+                    switch(activeFilter) {		
+                        case 'UNI Standalone':		activeFilter = 'ERS Premier UNI';	break;
+                        case 'UNI/EVC Combo':		activeFilter = 'UNI EVC';	break;		//Changed for 2969_ITR_revert 
+                        			
+                        case 'EVC Standalone':       activeFilter = 'ERS PREMIER EVC';	break;
+						//new code starts
+						case 'PIP Port & Access':	activeFilter = 'PIP Port & Access';	break;	
+                        case 'PIP NNI Port & Access':activeFilter = 'PIP NNI Port & Access';	break;
+						//new code ends
+                        default:	break;		
+                    }                		
+                    console.log('translated activeFilter ====> '+activeFilter);		
+                }  
+                action.setParams({
+                    "header" : header,
+                    "value" : activeFilter,
+                    "rowLimit" : limit,
+                    "rowOffset" : offset
+                });
+            }
+                else {
+                    //console.log("no filter");
+                    //console.log("totalRows: loadData ", totalRows);
+                    //console.log("limit: ", limit);
+                    //console.log("offset: ", offset);
+                    //limit = 11, offset =11, totalrows = 1007
+                    if(limit + offset > totalRows){
+                        limit = totalRows - offset;
+                    }
+                    var action = component.get("c.getrecords1");
+                    action.setParams({
+                        "searchKey": searchKey == undefined ? '' : searchKey,
+					"orderStatus":'',
+                        "rowLimit" : limit,
+                        "rowOffset" : offset
+                    });
+                }
+            action.setCallback(this, function(response){
+                var state = response.getState();
+                console.log("state: ", state);
+                if(state == 'SUCCESS' && response.getReturnValue().Orderdatalst != null && response.getReturnValue().Orderdatalst.length > 0){
+                    var oldData = component.get("v.orderList");
+                    console.log("oldData: ", oldData);
+                    var newData = response.getReturnValue().Orderdatalst;
+                    console.log("newData: ", newData);
+                    console.log("newData@@@@"+JSON.stringify(newData));
+                    // debugger;
+                    var listData = [];
+                    var flagVal;
+                    var display;
+                    var showIcon;
+                    var frameUrl = '';
+					//new code starts
+					var country;	
+                    var disableCopyOrder;
+					//new code ends
+                    var pathElements = window.location.pathname.split("/");
+                    if(pathElements.indexOf("Partner") != -1) {
+                        frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                    } else {
+                        frameUrl = window.location.origin + '/s/';
+                    } 
+                    var navigateToUrl = '';
+                    var navigateToMilestoneUrl='';
+                    newData.forEach(function(order){
+                        // Code Added for Revamp Project - surendra
+                        //Start -Revemp Project - Surendra
+                        //var navigateToUrl = '';
+                        //changed for copy order by surender
+                        if(order.Orderdata.Status == 'New' || order.Orderdata.Status == 'Error' || order.Orderdata.Status == 'Jeopardy'){
+                            showIcon = '';
+                           disableCopyOrder = true;}
+                        else{
+                                showIcon='utility:copy';
+                            disableCopyOrder = false;
+                            }
+                        //showIcon= order.Orderdata.OrderType == 'QuickOrder' ? 'utility:copy' : '';
+                        var linkURL = JSON.parse(order.Orderdata.link);
+                        var encodedHash = encodeURIComponent('#');
+                        var encodedQuestion = encodeURIComponent('?');
+                        var encodedAmp = encodeURIComponent('&');
+                        var encodedFSlash = encodeURIComponent('/');
+                        var encodedEqual = encodeURIComponent('=');
+                        // New Code Added for Revemp Project [SKB] 
+						//new code starts
+						////Need to check with Eswara or Sonal Starts
+						/*
+                        if(records[i].Orderdata.ProductName__c !== 'Wavelength Solutions' && records[i].disableCopy !='true')	
+						{
+							showIcon = 'utility:copy';	
+							disableCopyOrder = false;	
+						} else{	
+							showIcon = '';	
+							disableCopyOrder = true;	
+						}
+						*/
+						//new code ends
+                        display = (order.Orderdata.flag===true ? 'redc' : 'blackc');
+                        flagVal=order.Orderdata.flag ===true ? 'hasFlag' : '';
+						//new code starts
+						/* Sonal logic Start*/	
+                        //Need to check with Eswara or Sonal Starts
+                        //country = records[i].quote.Country__c;	
+                        //country = records[i].Orderdata.Country;	
+						//console.log("service@@@ ##location country is:"+country);   	
+                         /* Sonal logic end*/
+						//new code ends
+						
+                        if(order.Orderdata.Status == 'New')
+                        {
+                            
+                            navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                            
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'Normal' + encodedAmp; 
+                            navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + order.Orderdata.orderId + encodedAmp;							
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                                /*{
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.orderId;
+                            }*/
+                            if((order.Orderdata.OrderType == 'Install') && (order.Orderdata.RelatedOrderId == '' ||  order.Orderdata.RelatedOrderId ==undefined))
+                            {
+                                var strserviceplatform=order.Orderdata.ServicePlaform;
+                                var ProductType= order.Orderdata.ProductType;//Added By Mahesh
+                                var productCode = order.Orderdata.productCode;
+                                if( strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                    if(productCode.includes('ETH_ELINE_Point_To_Point')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL PTP/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzB')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzT')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                    }
+                                }
+								//new code starts
+								//Need to check with Eswara or Sonal Starts
+								//else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+								else if(order.Orderdata.productCode == 'PIP_OFR_UNI' || order.Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+								
+									navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP																			
+								}
+								//new code ends
+                                else if(ProductType != undefined && ProductType.includes('Private')){
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change
+                                    
+                                }
+								//new code starts
+
+								else if(order.Orderdata.productCode != 'IDE_SERV_OFFR' && ProductType != undefined && ProductType.includes('Dedicated')){	//IR 3128 // ITR 3888
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/DLine OrderEntry Screen/'); //-- This is for Provide no need to change	
+                                    	
+                                }								
+								//new code ends
+                                 else if(order.Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || order.Orderdata.productCode == 'IDE_OFR_TIERED' || order.Orderdata.productCode == 'IDE_SERV_OFFR'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                 }else if(order.Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                 }else if(order.Orderdata.productCode == 'CORE_PL_OFR_PTP' && order.Orderdata.OfferType!='USPL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL
+                                 }else if(order.Orderdata.productCode == 'CORE_PL_OFR_PTP' && order.Orderdata.OfferType=='USPL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/USPL/'); //for USPL
+                                 }
+                                 else if(order.Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                 }else if(order.Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                 }
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.orderId;
+                                
+                            }							
+                            else if((order.Orderdata.OrderType == 'Install' && order.Orderdata.RelatedOrderId  != '') || (order.Orderdata.OrderType == 'change')){
+                                
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                
+                            }else if(order.Orderdata.OrderType == 'disconnect')
+                            {
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.orderId;
+                                
+                            }
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                            
+                            
+                        } 
+                        else if (order.Orderdata.Status == 'Open')
+                        {
+                            if (!$A.util.isEmpty(order.Orderdata.OSInstId)) { //resume                                                                                          
+                                navigateToUrl = frameUrl + 'resumepage?orderStatus=' + order.Orderdata.Status + '&id=' + order.Orderdata.OSInstId; //line 234
+                            } 
+                            else{
+                                navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                                navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'resume' + encodedAmp; 
+                                navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + order.Orderdata.orderId + encodedAmp;								
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/');
+                                //frameUrl = frameUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + linkURL.orderId;
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.orderId;
+                                if((order.Orderdata.OrderType == 'Install') && (order.Orderdata.RelatedOrderId == '' ||  order.Orderdata.RelatedOrderId ==undefined))
+                                {
+                                    var strserviceplatform=order.Orderdata.ServicePlaform;
+                                    var ProductType= order.Orderdata.ProductType;//Added By Mahesh
+                                    var productCode = order.Orderdata.productCode;
+                                    if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                        if(productCode.includes('ETH_ELINE_Point_To_Point')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL PTP/'); //-- This is for Provide no need to change
+                                        }
+                                        else if(strserviceplatform.includes('VzB')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                        }
+                                        else if(strserviceplatform.includes('VzT')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                        }
+                                    }
+									//new code starts
+									////Need to check with Eswara or Sonal Starts
+									//else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+									else if(order.Orderdata.productCode == 'PIP_OFR_UNI' || order.Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+									
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP																			
+									}
+									//new code ends
+                                    else if(ProductType != undefined && ProductType.includes('Private')){		
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change                                                           		
+                                    } 
+                                    
+                                        else if(order.Orderdata.productCode == 'IDE_SERV_OFFR' || order.Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || order.Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                        }else if(order.Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                        }else if(order.Orderdata.productCode == 'CORE_PL_OFR_PTP'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL										
+                                        }else if(order.Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                        }else if(order.Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                        }
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.orderId;
+                                    
+                                }							
+                                else if((order.Orderdata.OrderType == 'Install' && order.Orderdata.RelatedOrderId  != '') || (order.Orderdata.OrderType == 'change')){
+                                    
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    
+                                }else if(order.Orderdata.OrderType == 'disconnect')
+                                {
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + order.Orderdata.orderId;
+                                    
+                                }								
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                                
+                            }
+                        }
+                            else if (order.Orderdata.Status == 'Submitted' || order.Orderdata.Status == 'In Progress' || order.Orderdata.Status == 'Error' || order.Orderdata.Status == 'Jeopardy' || order.Orderdata.Status == 'Change Requested' || order.Orderdata.Status == 'Completed' || order.Orderdata.Status == 'Cancelled' || order.Orderdata.Status == 'Cancel Submit') { //milestone page  --
+                                
+                                console.log("order.Orderdata.Status@@@"+order.Orderdata.Status);
+                                // navigateToUrl = frameUrl + 'ordermilestoneslwc?id=' + order.Orderdata.OSInstId + '&orderId=' + order.Orderdata.orderId +'&product=' + order.Orderdata.product;
+                                navigateToUrl = frameUrl + 'ordersummary?orderId=' + order.Orderdata.orderId;
+                                console.log("navigateToUrl@@@"+navigateToUrl);
+                                //debugger;
+                            }
+                        navigateToMilestoneUrl = frameUrl + 'ordermilestoneslwc?id=' + order.Orderdata.OSInstId + '&orderId=' + order.Orderdata.orderId +'&product=' + order.Orderdata.product;
+                        //Nalini changes starts
+ if((order.Orderdata.Status == 'Submitted') && (order.Orderdata.Status == 'In Progress') && (order.Orderdata.OrderType == 'QuickOrder') && (order.Orderdata.product == 'Switched E-Line')){
+    navigateToUrl = frameUrl + 'ordersummary?orderId=' + order.Orderdata.orderId; 
+    console.log("CX2");
+} 
+//Nalini changes ends
+                        
+                        /* else if (order.Orderdata.Status == 'Completed' || order.Orderdata.Status == 'Cancelled' || order.Orderdata.Status == 'Cancel Submit') {
+                                //LWC component  
+                                navigateToUrl = frameUrl + 'ordersummary?orderId=' + order.Orderdata.orderId;
+                            }*/
+                        
+                        //Code Commente by surendra - Revamp Project  below listdat.push
+                        //display = 'redc';
+                        //flagVal=  'utility:priority';
+                        /*
+						/****Code updated by ram.sahu starts***/
+                        //display = (order.Orderdata.flag===true ? 'redc' : 'blackc');
+                        //flagVal=   (order.Orderdata.flag===true ? 'utility:priority' : '');
+                        /****Code updated by ram.sahu ends***/               
+                        //if(order.Orderdata.Status === 'Submitted'){
+                        //   navigateToUrl = frameUrl + 'ordermilestones?id='+order.Orderdata.OSInstId+'&orderId='+order.Orderdata.orderId
+                        //}else{
+                        // navigateToUrl = frameUrl + 'resumepage?id='+order.Orderdata.OSInstId;
+                        //} 
+						
+                    //TOLLFREE CODE STARTS
+                    console.log('####### status : '+order.Orderdata.Status);
+                    //for itr 3767
+                    if(order.Orderdata.Status == 'Open' || order.Orderdata.Status == 'Submitted' || order.Orderdata.Status == 'In Progress' || order.Orderdata.Status == 'Error' || order.Orderdata.Status == 'Jeopardy' || order.Orderdata.Status == 'Completed' ){
+                    //if(order.Orderdata.Status == 'Submitted' || order.Orderdata.Status == 'Error' ){
+                        console.log('####### Product : '+order.Orderdata.product);
+                        console.log('####### ProductOffering : '+order.Orderdata.productOffering);
+                        if(order.Orderdata.productOffering == 'US Toll Free' || order.Orderdata.productOffering == 'ITFS Toll Free' || order.Orderdata.productOffering == 'UIFN Toll Free'){
+                            var pathElements = window.location.pathname.split("/");
+                            if(pathElements.indexOf("Partner") != -1) {
+                                frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                            } else {
+                                frameUrl = window.location.origin + '/s/';
+                            }
+                            summaryPageUrl = frameUrl + 'tollfreesummarypage?id='+order.Orderdata.orderId;
+                            navigateToMilestoneUrl = frameUrl + 'tollfreemilestonespage?id='+order.Orderdata.orderId;
+                            navigateToUrl = frameUrl+'tollfreeorderstatuspage?id=' + order.Orderdata.orderId ;
+                        }
+                    }
+                    //TOLLFREE CODE ENDS
+						//vrd changes starts
+                    if(order.Orderdata.quoteDescription == 'VRD'){
+                        if(order.Orderdata.productOffering == 'IDE - Tiered'){
+                            order.Orderdata.productOffering ='IDS - Tiered';
+                        }
+                        else if(order.Orderdata.productOffering == 'IDE - Burstable'){
+                            order.Orderdata.productOffering = 'IDS - Burstable';
+                        }
+                    }
+                    //vrd changes ends
+                        listData.push({
+                            displayClass 		    : display,
+                            displayStatusClass	    : (order.Orderdata.Status == 'Open'||order.Orderdata.Status == 'New')? 'disable-click' : 'blackc',
+                            displayMilestoneClass   : (order.Orderdata.milestoneStatus == null || order.Orderdata.milestoneStatus == undefined )? 'display-milestone' :'blackc',
+                            flagIconName     	    : flagVal,
+                            flagIconColor		    : 'red',
+                            orderId                 : order.Orderdata.orderId,
+                            Name   				    : order.Orderdata.Name,
+                            ProjectId		    	: order.Orderdata.projectId,//projectId,
+                            //Product			    	: order.Orderdata.product, //product,
+							Product 				: (order.Orderdata.quoteDescription == 'VRD')? 'Internet Dedicated +' : order.Orderdata.product,//vrd changes
+                            ProductOffering	    	: order.Orderdata.productOffering,//productOffering,
+                            SubmittedDate	    	: order.Orderdata.dateSubmitted,// dateSubmitted,
+                            RequestedDueDate    	: order.Orderdata.dueDate,//dueDate,	
+                            Status 			    	: order.Orderdata.Status,
+                            Milestone               : order.Orderdata.milestoneStatus,
+                            linkMilestone	    	: navigateToMilestoneUrl,
+                            copyIconName            : showIcon,
+							disableCopyOrder 		:disableCopyOrder,
+                            statuslinkMilestone		: (order.Orderdata.product == 'Inbound Voice Services') ? navigateToUrl : navigateToMilestoneUrl ,//added for status filter
+                            //linkName 			    : (order.Orderdata.product == 'Inbound Voice Services') ? summaryPageUrl :navigateToUrl
+                            linkName 			  : (order.Orderdata.product == 'Inbound Voice Services' && (order.Orderdata.Status == 'Open' || order.Orderdata.Status == 'Submitted' || order.Orderdata.Status == 'In Progress' || order.Orderdata.Status == 'Error' || order.Orderdata.Status == 'Jeopardy' || order.Orderdata.Status == 'Completed' )) ? summaryPageUrl :navigateToUrl
+                        });  
+                    });
+                    resolve(listData);
+//since we are facing issue in below line. so we updated the code at 1211 line - CX track
+			 //linkName : (records[i].Orderdata.product == 'Toll Free') ? summaryPageUrl :navigateToUrl,
+					//new code added in line no.1139
+					//disableCopyOrder		:disableCopyOrder
+					//new code ends 
+                    var currentCount = component.get("v.currentCount");
+                    currentCount += component.get("v.initialRows");
+                    //set the current count with number of records loaded
+                    component.set("v.currentCount",currentCount);
+                    console.log("disableCopyOrder		:disableCopyOrder");
+                }
+                else
+                {
+                    console.log('State was: ' + state);
+                }
+				component.set("v.Spinner", false); //kc									   
+            });
+            $A.enqueueAction(action);
+        }));
+    },  
+    
+    sortData : function (component, fieldName, sortDirection) {
+        console.log("Helper sortData");
+        /*  This method takes the fieldName that the user has selected and the 
+         * sortDirection boolean, determining which way the records will be listed
+         * and calls on sortBy() to sort the data. */
+        var data = component.get("v.orderList");
+        var reverse = sortDirection !== 'asc';
+        /* fieldName = (fieldName == 'linkName') ? 'Name' : fieldName;*/    // Handle Hyperlink field
+        fieldName = (fieldName == 'linkName') ? 'Name' : (fieldName == 'VPS_OrderFlag__c') ? 'flagIconName' : fieldName;
+        data.sort(this.sortBy(fieldName, reverse));
+        component.set("v.orderList", data);
+    },    
+    sortBy: function (field, reverse, primer) {
+        console.log("Helper sortBy");
+        /* This method takes the field and order to sort the data. And returns the ordered list */         
+        var key = primer ? function(x) {return primer(x[field])} : function(x) {return x[field]};
+        reverse = !reverse ? 1 : -1;
+        return function (a, b) {
+            //return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+            return a = key(a)?key(a):'', b = key(b)?key(b):'', reverse * ((a > b) - (b > a)); 
+        }
+    },
+    //Sandra added this method for Download Worklist functionality
+    downloadOrders : function(component, helper) {
+        console.log("Helper downloadOrders");
+        var orderList=component.get("v.orderList");
+        //check if quoteList is null, then return from function
+        if (orderList == null || !orderList.length) {
+            return null;
+        }  
+        //declare variables
+        var csvStringResult, counter, keys, headers;        
+        //store fields' API Names as keys or names from variable listdata
+        //add flagIconName for flag values in Excel
+        keys = ["flagIconName","Name", "ProjectId", "Product", "ProductOffering", "SubmittedDate", "RequestedDueDate", "Status", "Milestone"];
+        //store table header names from ui
+        
+        //new code starts
+		//earlier it was like below need to check with Eswara or Ankush
+		//headers = ["Name", "Project Id", "Product", "Product Offering", "Submitted Date", "Requested Due Date", "Status", "Milestone"];
+		headers = ["Order Name", "Project Id", "Product", "Product Offering", "Submitted Date", "Requested Due Date", "Status", "Milestone"];
+        //new code ends
+        csvStringResult = '';
+        csvStringResult += "Flagged?"; //add Flagged? as a header in Excel
+        csvStringResult += ",";
+        csvStringResult += headers.join(','); //add the rest of the headers
+        csvStringResult += '\n';
+        
+        for(var i=0; i < orderList.length; i++) {
+            counter = 0;            
+            for(var sTempkey in keys) {
+                var skey = keys[sTempkey];
+                if(counter > 0) {
+                    csvStringResult += ',';
+                }                
+                //check if there are values
+                if (orderList[i][skey] != '' && orderList[i][skey] != undefined) {
+                    if (orderList[i][skey] === "hasFlag") {	//if flag is checked
+                        csvStringResult += "Yes";
+                    } else {
+                        csvStringResult += orderList[i][skey];
+                    }
+                } else {
+                    if (skey === "flagIconName") {	//if no flag
+                        csvStringResult += "No";
+                    } else {
+                        csvStringResult += "";	//if no value, empty string
+                    }
+                }
+                counter++;
+            } //inner for loop close
+            csvStringResult += '\n';
+        } //outer main for loop close
+        //get currentDate
+        var today = new Date();
+        var dd = today.getDate();        
+        var mm = today.getMonth() + 1;
+        if (mm < 10) { mm = '0' + mm; }        
+        var yy = today.getFullYear();
+        yy = yy.toString().substr(-2);
+        today = mm + '_' + dd + '_' + yy;        
+        //create hidden element to download file and append to document
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvStringResult);
+        hiddenElement.target = '_self';
+        hiddenElement.download = 'OrderWorklist_'+today+'.csv'; // You can change CSV file name, leave .csv
+        document.body.appendChild(hiddenElement); // Required for FireFox browser
+        hiddenElement.click(); // using click() js function to download csv file
+    },
+    updateOrderWorkList: function (component, header) {
+        console.log("Helper updateOrderWorkList");  
+		var summaryPageUrl = ''; //TOLLFREE Variable
+        var activeFilter = component.get('v.activeFilter');
+        console.log("7");
+        console.log('enableInfiniteLoading', component.get("v.enableInfiniteLoading"));
+        console.log('activeFilter480@@@@',activeFilter);
+        console.log('Header: ' + header);
+        // if the filter is all, have quoteList use the allQuoteList instead of filtering
+        if (activeFilter === 'all'){
+            var all = component.get('v.allOrderList');
+            component.set("v.orderList", all);
+            //console.log('Got all orders');
+        }else{
+            if(header == 'VPS_ProductOffering_WKL__c') {	// Change Filter value from GUI to DB		
+                switch(activeFilter) {		
+                        //case 'UNI Standalone':		activeFilter = 'ERS Premier UNI';	break;			
+                    case 'UNI Standalone':		activeFilter = 'UNI Standalone';	break;
+                    case 'UNI/EVC Combo':		activeFilter = 'UNI EVC'; break;  //Changed for 2969_ITR_revert
+                   		
+                    case 'EVC Standalone':		activeFilter = 'EVC Standalone';	break;
+                        
+                        //case 'EVC Standalone':		activeFilter = 'ERS PREMIER EVC';	break;
+                        //new code starts
+                    case 'PIP Port & Access':	activeFilter = 'PIP Port & Access';	break;	
+                    case 'PIP NNI Port & Access':activeFilter = 'PIP NNI Port & Access';	break;
+					//new code ends
+                    default:	break;		
+                }                		
+                console.log('translated activeFilter ====> '+activeFilter);		
+            }
+            var action = component.get('c.updateHeaderFilter');
+            console.log('activeFilter488 ====> '+activeFilter);
+            action.setParams({"header": header,
+                              "value" : activeFilter,
+                              "rowLimit": component.get("v.initialRows"),
+                              "rowOffset": 0});
+            action.setCallback(this, function(response) {
+                var state = response.getState();
+                //debugger;
+                console.log('Helpergetrecords1state3 ====> '+state);
+                if (state === "SUCCESS") {
+                    var listdata = [];
+                    var rtnValue = response.getReturnValue();
+                    component.set("v.totalRows", response.getReturnValue().totalRecords);
+                    console.log("rtnValue@@"+ JSON.stringify(rtnValue));
+                    console.log("headerAction totalRows", component.get("v.totalRows"));
+                    console.log(rtnValue);
+                    component.set("v.enableInfiniteLoading", true);
+                    if (rtnValue.Orderdatalst == undefined){
+                        rtnValue.Orderdatalst == {};
+                    }
+                    var records = rtnValue.Orderdatalst;
+                    //add by Edward
+                    var display;
+                    var flagVal;
+                    var showIcon;
+                    var frameUrl = '';
+					//new code starts
+					var country;
+					//new code ends
+                    var pathElements = window.location.pathname.split("/");
+                    if(pathElements.indexOf("Partner") != -1) {
+                        frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                    } else {
+                        frameUrl = window.location.origin + '/s/';
+                    }
+                    var navigateToUrl = '';
+                    var navigateToMilestoneUrl ='';
+                    for(var i=0; i<records.length; i++){
+                        
+                        //Start -Revemp Project - Surendra
+                        //var navigateToUrl = '';
+                        var linkURL = JSON.parse(records[i].Orderdata.link);
+                        var encodedHash = encodeURIComponent('#');
+                        var encodedQuestion = encodeURIComponent('?');
+                        var encodedAmp = encodeURIComponent('&');
+                        var encodedFSlash = encodeURIComponent('/');
+                        var encodedEqual = encodeURIComponent('=');
+                        // New Code Added for Revemp Project [SKB]
+                        
+                         showIcon = records[i].Orderdata.OrderType == 'QuickOrder' ? 'utility:copy' : '';
+                        display = (records[i].Orderdata.flag===true ? 'redc' : 'blackc');
+                        flagVal=records[i].Orderdata.flag ===true ? 'hasFlag' : '';
+						//new code starts
+						/* Sonal logic Start*/	
+                        //country = records[i].quote.Country__c;	
+                        country = records[i].Orderdata.Country;	
+						console.log("service@@@ ##location country is:"+country);   	
+                         /* Sonal logic end*/
+						//new code endss
+                        //debugger;
+                        console.log('VERIZON1');
+                        if(records[i].Orderdata.Status == 'New')
+                        {
+                            console.log('VERIZON2');
+                            navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                            navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                            
+                            navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                            navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'Normal' + encodedAmp; 
+                            navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp;							
+                            navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                            console.log('OrderType***'+records[i].Orderdata.OrderType);
+                            console.log('records[i].Orderdata.RelatedOrderId@@@@'+records[i].Orderdata.RelatedOrderId);
+                                /*{
+                                console.log('VERIZON3');
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                            }*/
+                            
+                            if((records[i].Orderdata.OrderType == 'Install') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                            {	console.log('VERIZON31@@');
+                                var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                                var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                                var productCode = records[i].Orderdata.productCode;
+                             	console.log('VERIZON31RA@@'+records[i].Orderdata.Name);
+                             	console.log('strserviceplatformRA@@'+strserviceplatform);
+                             if(records[i].Orderdata.Name="BobJohnOrder"){
+                                 console.log('ProductTypeRA111@@'+ProductType);
+								}
+								console.log('ProductTypeRA@@'+ProductType);
+                                if( strserviceplatform != undefined && ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                    if(productCode.includes('ETH_ELINE_Point_To_Point')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL PTP/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzB')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                    }
+                                    else if(strserviceplatform.includes('VzT')){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                    }
+                                    else{
+                                            console.log("else condition of VERIZON31");
+                                    }
+                                }
+								/* moving below logic as a last condition -->Balaji
+								//new code starts
+								else if (ProductType != undefined && ProductType.includes('Dedicated')){
+									navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/DLine OrderEntry Screen/');	
+								}*/	
+								else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' )	
+								{//PIP	
+									navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP		
+								}
+								//new code ends
+                                else if(ProductType != undefined && ProductType.includes('Private')){										
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change                                                           		
+                                } 
+                                else if(records[i].Orderdata.productCode == 'IDE_SERV_OFFR' ||records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                }else if(records[i].Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                }else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && records[i].Orderdata.OfferType!='USPL'){
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL
+                                }
+                                else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP' && records[i].Orderdata.OfferType=='USPL'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/USPL/'); //for USPL
+                                }
+                                else if(records[i].Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                }else if(records[i].Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                }
+								//Moved the below logic from top place to here
+								else if (ProductType != undefined && ProductType.includes('Dedicated')){
+									navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/DLine OrderEntry Screen/');	
+								}								
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                
+                            }								
+                            else if((records[i].Orderdata.OrderType == 'Install' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'change')){
+                                console.log('VERIZON4');
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                
+                            }else if(records[i].Orderdata.OrderType == 'disconnect')
+                            {
+                                console.log('VERIZON5');
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                
+                            }
+                            navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true'); 
+                            
+                        } 
+                        else if (records[i].Orderdata.Status == 'Open')
+                        {
+                            console.log('VERIZON6');
+                            if (!$A.util.isEmpty(records[i].Orderdata.OSInstId)) { //resume                                                                                          
+                                navigateToUrl = frameUrl + 'resumepage?orderStatus=' + records[i].Orderdata.Status + '&id=' + records[i].Orderdata.OSInstId; //line 234
+                            } 
+                            else{
+                                console.log('VERIZON7');
+                                navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                                navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                                navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                                navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'resume' + encodedAmp; 
+                                navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + records[i].Orderdata.orderId + encodedAmp ; 								
+                                navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/');
+                                //frameUrl = frameUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + linkURL.orderId;
+                                //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                if((records[i].Orderdata.OrderType == 'Install') && (records[i].Orderdata.RelatedOrderId == '' ||  records[i].Orderdata.RelatedOrderId ==undefined))
+                                {
+                                    var strserviceplatform=records[i].Orderdata.ServicePlaform;
+                                    var ProductType= records[i].Orderdata.ProductType;//Added By Mahesh
+                                    var productCode = records[i].Orderdata.productCode;
+                                    if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){ // Added by Ankush 
+                                        if(productCode.includes('ETH_ELINE_Point_To_Point')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL PTP/'); //-- This is for Provide no need to change
+                                        }
+                                        else if(strserviceplatform.includes('VzB')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen EVPL/'); //-- This is for Provide no need to change
+                                        }
+                                        else if(strserviceplatform.includes('VzT')){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); //-- This is for Provide no need to change
+                                        }
+                                    }
+									//new code starts
+									else if(records[i].Orderdata.productCode == 'PIP_OFR_UNI' || records[i].Orderdata.productCode == 'PIP_OFR_NNI' ){//PIP	
+										navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP		
+                                    }
+									//new code ends
+                                    else if(ProductType != undefined && ProductType.includes('Private')){		
+                                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //-- This is for Provide no need to change                                                           		
+                                    } 
+                                        else if(records[i].Orderdata.productCode == 'IDE_OFR_BURSTABLESELECT' || records[i].Orderdata.productCode == 'IDE_OFR_TIERED'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen IDE/'); //for IDE										
+                                        }else if(records[i].Orderdata.productCode == 'WAVE_OFR_WAVELENGTH_SOL'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/WAVE/'); //for Wave										
+                                        }else if(records[i].Orderdata.productCode == 'CORE_PL_OFR_PTP'){
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Order/'); //for MPL										
+                                        }else if(records[i].Orderdata.productCode == 'VOICE_GIPC_DD'){//GIPC
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/GIPC DD Quick Order/'); //for MPL										
+                                        }else if(records[i].Orderdata.productCode == 'VOICE_SIP_OB'){//SIP
+                                            navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/SIP Gateway Quick Order/'); //for MPL										
+                                        }
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                    
+                                }								
+                                else if((records[i].Orderdata.OrderType == 'Install' && records[i].Orderdata.RelatedOrderId  != '') || (records[i].Orderdata.OrderType == 'change')){
+                                    console.log('VERIZON4');
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/'); // Need to Open ChnageService OS & Extract two value
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/ChangeService/');
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    
+                                }else if(records[i].Orderdata.OrderType == 'disconnect')
+                                {
+                                    console.log('VERIZON5');
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/MACD/OmniScriptSubType/DisconnectService/'); // for Discoonect -- fromParent OS Disconnect
+                                    navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.AssetId; // Need to Pass Asset Id - by adding in orderWrapper &OrderList
+                                    //navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                                    
+                                }								
+                                navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                                
+                            }
+                        }
+                            else if (records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress'|| records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Change Requested' || records[i].Orderdata.Status == 'Completed' || records[i].Orderdata.Status == 'Cancelled' || records[i].Orderdata.Status == 'Cancel Submit') { //milestone page  --
+                                // navigateToUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId +'&product=' + records[i].Orderdata.product;
+                               navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId ;
+                            }
+                        navigateToMilestoneUrl = frameUrl + 'ordermilestoneslwc?id=' + records[i].Orderdata.OSInstId + '&orderId=' + records[i].Orderdata.orderId +'&product=' + records[i].Orderdata.product;
+                        
+                        //Nalini changes starts
+ if((records[i].Orderdata.Status == 'Submitted') && (records[i].Orderdata.Status == 'In Progress') && (records[i].Orderdata.OrderType == 'QuickOrder') && (records[i].Orderdata.product == 'Switched E-Line')){
+    navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId; 
+    console.log("CX2");
+} 
+//Nalini changes ends
+                        /*else if (records[i].Orderdata.Status == 'Completed' || records[i].Orderdata.Status == 'Cancelled' || records[i].Orderdata.Status == 'Cancel Submit') {
+                                //LWC component  
+                                navigateToUrl = frameUrl + 'ordersummary?orderId=' + records[i].Orderdata.orderId;
+                            }*/
+                        // End -Revemp Project - Surendra
+                        
+                        /*navigateToUrl = '';
+                        display = (records[i].Orderdata.flag===true ? 'redc' : 'blackc');
+                        flagVal=  (records[i].Orderdata.flag===true ? 'utility:priority' : '');                                            
+                       // console.log(flagVal);
+                       //if(records[i].Status != 'New' && records[i].Status != 'Open'){
+                       if(records[i].Orderdata.Status != 'New' && records[i].Orderdata.Status != 'Open'){
+                           //.Orderdata.Status
+                           console.log("records[i].Status522@@@"+records[i].Orderdata.Status);
+                        navigateToUrl = frameUrl + 'ordermilestones?id='+records[i].Orderdata.OSInstId+'&orderId='+records[i].Orderdata.orderId ;
+                           //console.log("navigateToUrl519@@@"+navigateToUrl);    
+                   		 }else if(records[i].Orderdata.Status == 'New'){
+                          
+                          console.log('records[i].Orderdata.link' + records[i].Orderdata.link);
+                          var linkURL = JSON.parse(records[i].Orderdata.link);
+                          //console.log('linkURL' + linkURL);
+                            
+                          var encodedHash = encodeURIComponent('#');
+                          var encodedQuestion = encodeURIComponent('?');
+                          var encodedAmp = encodeURIComponent('&');
+                          var encodedFSlash = encodeURIComponent('/');
+                          var encodedEqual = encodeURIComponent('=');
+                          //     var frameUrl = 'https://vpscxmigra-vpsverizon.cs2.force.com/Partner/s/';
+                          //  Added today
+                          //var frameUrl = '';
+                          //var pathElements = window.location.pathname.split("/");
+                          //if(pathElements.indexOf("Partner") != -1) {
+                                 //frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                          //} else {
+                                 //frameUrl = window.location.origin + '/s/';
+                          //} 
+                          navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                          navigateToUrl = navigateToUrl + encodedFSlash + 'apex' ;
+                          navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                          navigateToUrl = navigateToUrl + 'layout' + encodedEqual + linkURL.layout + encodedAmp + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + linkURL.trackKey + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + linkURL.omniCancelAction + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + linkURL.omniIframeEmbedded + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + linkURL.isdtp + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + encodeURIComponent(linkURL.sfdcIFrameOrigin) + encodedAmp;
+                          navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + linkURL.sfdcIFrameHost + encodedAmp + encodedHash;
+                          navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/OrderEntry Screen/');
+                          //frameUrl = frameUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + linkURL.orderId;
+                          navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + records[i].Orderdata.orderId;
+                             navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                          //console.log("navigateToUrl553@@@"+navigateToUrl);    
+                             //if(!frameUrl.includes('undefined')){
+                                 //navigateToUrl = frameUrl;
+                          //}
+                    }else{
+                            
+                        /*
+                        navigateToUrl = frameUrl + 'resumepage?id='+records[i].OSInstId;
+						navigateToUrl = navigateToUrl + '&orderStatus=';
+						navigateToUrl = navigateToUrl + records[i].Orderdata.Status;
+						navigateToUrl = navigateToUrl + '&orderMilestoneStatus=';
+						navigateToUrl = navigateToUrl + records[i].Orderdata.milestoneStatus;
+						navigateToUrl = navigateToUrl + '&userHasDeliveryRole=';
+						navigateToUrl = navigateToUrl + records[i].Orderdata.userHasDeliveryRole;                            
+                        */
+                        // debugger;
+                        // navigateToUrl = frameUrl + 'resumepage?orderStatus=' + records[i].Orderdata.Status + '&id='+records[i].Orderdata.OSInstId;
+                        //console.log("navigateToUrl569@@@"+navigateToUrl); *//     
+                        // } Commented by Surendra for Revemp Project 
+						
+						  //TOLLFREE CODE STARTS
+                    console.log('####### status : '+records[i].Orderdata.Status);
+                        //for itr 3767
+                        if(records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Completed' ){
+                        //if(records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'Error' ){
+                            console.log('####### Product : '+records[i].Orderdata.product);
+                            console.log('####### ProductOffering : '+records[i].Orderdata.productOffering);
+                            if(records[i].Orderdata.productOffering == 'US Toll Free' || records[i].Orderdata.productOffering == 'ITFS Toll Free' || records[i].Orderdata.productOffering == 'UIFN Toll Free'){
+                                var pathElements = window.location.pathname.split("/");
+                                if(pathElements.indexOf("Partner") != -1) {
+                                    frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                                } else {
+                                    frameUrl = window.location.origin + '/s/';
+                                }
+								summaryPageUrl = frameUrl + 'tollfreesummarypage?id='+records[i].Orderdata.orderId;
+                                navigateToMilestoneUrl = frameUrl+'tollfreemilestonespage?id=' + records[i].Orderdata.orderId ;
+                                navigateToUrl = frameUrl+'tollfreeorderstatuspage?id=' + records[i].Orderdata.orderId ;
+                            }
+                        }
+                        //TOLLFREE CODE ENDS
+						//vrd changes starts
+                    if(records[i].Orderdata.quoteDescription == 'VRD'){
+                        if(records[i].Orderdata.productOffering == 'IDE - Tiered'){
+                            records[i].Orderdata.productOffering ='IDS - Tiered';
+                        }
+                        else if(records[i].Orderdata.productOffering == 'IDE - Burstable'){
+                            records[i].Orderdata.productOffering = 'IDS - Burstable';
+                        }
+                    }
+                    //vrd changes ends
+                        listdata.push( {
+                            //console.log(JSON.stringify(records[i].Status));
+                            displayClass 		    : display,
+                            displayStatusClass	    : (records[i].Orderdata.Status == 'Open'||records[i].Orderdata.Status == 'New')? 'disable-click' : 'blackc',
+                            displayMilestoneClass   : (records[i].Orderdata.milestoneStatus == null || records[i].Orderdata.milestoneStatus == undefined )? 'display-milestone' :'blackc',
+                            flagIconName     	    : flagVal, 
+                            flagIconColor	    	: 'red',
+                            orderId                 : records[i].Orderdata.orderId,
+                            Name   				    : records[i].Orderdata.Name,
+                            //Status   				: records[i].Name,
+                            ProjectId			    : records[i].Orderdata.projectId,//projectId,
+                            //Product				    : records[i].Orderdata.product, //product,
+							Product 				: (records[i].Orderdata.quoteDescription == 'VRD')? 'Internet Dedicated +' : records[i].Orderdata.product,//vrd changes
+                            ProductOffering		    : records[i].Orderdata.productOffering,//productOffering,
+                            SubmittedDate		    : records[i].Orderdata.dateSubmitted,// dateSubmitted,
+                            RequestedDueDate	    : records[i].Orderdata.dueDate,//dueDate,	
+                            Status 				    : records[i].Orderdata.Status,
+                            Milestone               : records[i].Orderdata.milestoneStatus,
+                            linkMilestone		    : navigateToMilestoneUrl,
+                            statuslinkMilestone		: (records[i].Orderdata.product == 'Inbound Voice Services') ? navigateToUrl :navigateToMilestoneUrl,//added for status filter
+                            Copy                    : records[i].Orderdata.OrderId,
+                            //linkName 			    : (records[i].Orderdata.product == 'Inbound Voice Services') ? summaryPageUrl :navigateToUrl
+                            linkName 			  : (records[i].Orderdata.product == 'Inbound Voice Services' && (records[i].Orderdata.Status == 'Open' || records[i].Orderdata.Status == 'Submitted' || records[i].Orderdata.Status == 'In Progress' || records[i].Orderdata.Status == 'Error' || records[i].Orderdata.Status == 'Jeopardy' || records[i].Orderdata.Status == 'Completed' )) ? summaryPageUrl :navigateToUrl
+                        });
+                        
+                    }
+                    component.set("v.orderList", listdata);
+                    //component.set("v.Spinner",false);
+                } else {
+                    console.log('callback error');
+                }
+            });
+            $A.enqueueAction(action);
+        }
+    },
+    
+    openModal : function(component, helper, flagDisplay) {
+        console.log('openModal flagDisplay:::', flagDisplay);
+        if (flagDisplay == 'redc') {
+            component.set('v.modalMessage', 'Would you like to unflag this order?');
+            component.set('v.flagAction', 'unflag');
+        } else {
+            component.set('v.modalMessage', 'Would you like to flag this order?');
+            component.set('v.flagAction', 'flag');
+        }
+        component.set('v.isOpen', true);
+    },
+    
+    editFlagHelper : function(component, event, helper) {
+        var flagAction = component.get('v.flagAction');
+        var orderId = component.get('v.orderId');
+        console.log('flagAction:::' + flagAction);
+        var action = component.get('c.flagOrder');
+        action.setParams({
+            flagAction : flagAction,
+            orderId : orderId 
+        });
+        action.setCallback(this, function(response){
+            var state = response.getState();
+            /*if (state != 'SUCCESS') {
+                console.log('state was:::', state);
+            }*/
+            if (state === 'SUCCESS') {
+                $A.get('e.force:refreshView').fire();
+            } else {
+                console.log('state was:::', state);
+            }
+        });
+        component.set("v.isOpen", false);
+        $A.enqueueAction(action);
+    },
+    cloneOrder : function(component,event,helper, orderId){       
+        console.log("Started in CloneOrder helper  @@@" + orderId );
+        //var orderId = event.currentTarget.id;
+        //alert('Quote Id to cole..'+orderId);        
+        var action = component.get("c.copyorders");   
+        console.log('getOrderId  ^^'+orderId);
+        action.setParams({ "orderId" :orderId });
+        action.setCallback(this, function(response) {
+            //alert('successful copied '+action);             
+            var state = response.getState();
+            console.log('state		^^'+state);
+            
+            if (state === "SUCCESS") {
+                
+                var returnedMap = JSON.parse(response.getReturnValue());
+                console.log('ServicePlatformcopy****'+returnedMap.ServicePlatform);
+                console.log('ProductTypecopy****'+returnedMap.ProductType);
+                //console.log('Productcopy*****'+returnedMap.product);
+                console.log('RelatedOrderIdcopy****'+returnedMap.RelatedOrderId);
+                
+                console.log('test  ^^'+JSON.stringify(returnedMap));
+                console.log('returnedMap  ^^'+returnedMap);
+                //console.log('test  ^^'+JSON.stringify(returnedMap));
+                //alert('successful copied '+action);
+                var frameUrl = '';
+                var pathElements = window.location.pathname.split("/");
+                if(pathElements.indexOf("Partner") != -1) {
+                    frameUrl = window.location.origin + '/' + pathElements[1] + '/s/';
+                } else {
+                    frameUrl = window.location.origin + '/s/';
+                } 	
+                console.log('frameUrl  ^^'+frameUrl);
+                console.log('pathElements  ^^'+pathElements);
+                var navigateToUrl = '';
+                var linkURL = returnedMap.sfdcIFrameOrigin;
+                console.log('linkURL		^^'+linkURL);
+                var encodedHash = encodeURIComponent('#');
+                var encodedQuestion = encodeURIComponent('?');
+                var encodedAmp = encodeURIComponent('&');
+                var encodedFSlash = encodeURIComponent('/');
+                var encodedEqual = encodeURIComponent('=');
+                //console.log();
+                // var OrderStatus= returnedMap.status;
+                //console.log('OrderStatus		^^'+OrderStatus);
+                // New Code Added for Revemp Project [SKB] 
+                //console.log('anusha'+showIcon);
+               // showIcon = 'utility:copy';
+                //display = (returnedMap.flag===true ? ' redc' : 'blackc');
+                //flagVal=returnedMap.flag ===true ? 'hasFlag' : ''; 
+                
+                navigateToUrl = frameUrl + 'omniscriptcontainer?actionUrl=';
+                navigateToUrl = navigateToUrl + encodedFSlash + 'apex';
+                navigateToUrl = navigateToUrl + encodedFSlash + 'vlocity_cmt__OmniScriptUniversalPage' + encodedQuestion;
+                
+                navigateToUrl = navigateToUrl + 'layout' + encodedEqual + returnedMap.layout + encodedAmp + encodedAmp;
+                navigateToUrl = navigateToUrl + 'trackKey' + encodedEqual + returnedMap.trackKey + encodedAmp;
+                navigateToUrl = navigateToUrl + 'omniCancelAction' + encodedEqual + returnedMap.omniCancelAction + encodedAmp;
+                navigateToUrl = navigateToUrl + 'omniIframeEmbedded' + encodedEqual + returnedMap.omniIframeEmbedded + encodedAmp;
+                navigateToUrl = navigateToUrl + 'isdtp' + encodedEqual + returnedMap.isdtp + encodedAmp;
+                navigateToUrl = navigateToUrl + 'sfdcIFrameOrigin' + encodedEqual + returnedMap.sfdcIFrameOrigin + encodedAmp;
+                
+                navigateToUrl = navigateToUrl + 'journeyType' + encodedEqual + 'copy' + encodedAmp; 
+                navigateToUrl = navigateToUrl + 'orderIdFromWL' + encodedEqual + orderId + encodedAmp;                                                                                   
+                navigateToUrl = navigateToUrl + 'sfdcIFrameHost' + encodedEqual + returnedMap.sfdcIFrameHost + encodedAmp + encodedHash;
+                console.log('ServicePlatformcopy****'+returnedMap.ServicePlatform);
+                console.log('ProductTypecopy****'+returnedMap.ProductType);
+                //console.log('Productcopy*****'+returnedMap.product);
+                //console.log('RelatedOrderIdcopy****'+returnedMap.RelatedOrderId);
+                console.log('entered in QuickOrder'); 
+                var strserviceplatform=returnedMap.servicePlatform;
+                //ram.sahu -> need to check with Eswara or Sonal for servicePlatform
+                var ProductType= returnedMap.productType;
+				
+                if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){
+                    if(strserviceplatform.includes('VzB')){
+                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL/'); //-- This is for Provide no need to change
+                    }
+                    else if(strserviceplatform.includes('VzT')){
+                        navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Quick Order/OmniScriptSubType/EVPL/'); //-- This is for Provide no need to change
+                    }
+                }
+				//new code starts
+				else if(returnedMap.productCode == 'PTP' || returnedMap.productCode == 'PTM' ){//PIP	
+								navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/DLine OrderEntry Screen/'); //for PIP		
+                }	
+                else if(returnedMap.productCode == 'PIP_OFR_UNI' || returnedMap.productCode == 'PIP_OFR_NNI' ){//PIP	
+								navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP		
+                }
+				//new code ends
+                else if(ProductType != undefined && ProductType.includes('Private')){
+					
+                    //navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Quick Order/'); //-- This is for Provide no need to change                                                           
+					//new code starts
+					if(ProductType=='Private IP')
+                    {
+                     	navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS PIP Order/OmniScriptSubType/PIP OrderEntry/'); //for PIP	
+
+                    }
+                    else
+                    navigateToUrl = navigateToUrl + encodeURIComponent('/OmniScriptType/VPS Create Order/OmniScriptSubType/MPL Quick Order/'); //-- This is for Provide no need to change                                                           
+                
+					//new code ends
+				} 
+                navigateToUrl = navigateToUrl + encodeURIComponent('OmniScriptLang/English/ContextId/') + returnedMap.ContextId;
+                navigateToUrl = navigateToUrl + encodeURIComponent('/PrefillDataRaptorBundle//true');
+                 //NNI Redesign below block
+                if(strserviceplatform != undefined &&  ProductType != undefined && ProductType.includes('Switched')){
+                    navigateToUrl = navigateToUrl + encodedQuestion + 'servicePlatform' + encodedEqual + returnedMap.servicePlatform; //NNI Redesign added service platform
+                }
+            }
+            console.log('navigateToUrl'+navigateToUrl);
+            location.replace(navigateToUrl);           
+            if(!navigateToUrl.includes('undefined')){
+                console.log('navigateToUrl  ::'+navigateToUrl);
+                //window.top.location = frameUrl;
+                var urlEvent = $A.get("e.force:navigateToUrl");
+                console.log('urlEvent		::'+urlEvent);
+                urlEvent.setParams({
+                    "url": navigateToUrl                    
+                });                              
+                urlEvent.fire();                  
+            } 
+        });
+        $A.enqueueAction(action);   
+    },
+    translateProductOffering : function(recordHndl) {
+        switch(recordHndl.Orderdata.productOffering) {
+            case 'ERS Premier UNI':		
+                recordHndl.Orderdata.productOffering = 'UNI Standalone';
+                break;
+            case 'UNI EVC':	
+                		
+                recordHndl.Orderdata.productOffering = 'UNI/EVC Combo'; //Changed for 2969_ITR_Revert
+                //recordHndl.Orderdata.productOffering = 'UNI EVC';
+                break;
+            case 'ERS PREMIER EVC':		
+                recordHndl.Orderdata.productOffering = 'EVC Standalone';
+                break;
+				
+			//new code starts
+			case 'PIP Port & Access':			
+                recordHndl.Orderdata.productOffering = 'PIP Port & Access';	
+                break;	
+            case 'PIP NNI Port & Access':			
+                recordHndl.Orderdata.productOffering = 'PIP NNI Port & Access';	
+                break;
+			//new code ends
+            default:	break;
+        }
+    }    
+})
