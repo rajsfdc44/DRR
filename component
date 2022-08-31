@@ -1,0 +1,159 @@
+<aura:component controller="VPS_OrderWorklist_LightningDatatable"  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction,forceCommunity:searchInterface" access="global" >
+    <aura:attribute name="orderList" type="Order[]"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="sortBy" type="String" default="Name" description="holds the string value of field to sort datatable by"/>
+    <aura:attribute name="sortDirection" type="Boolean" default="true" description="used to select sorting order: asc/dec"/>
+    <aura:attribute name="placeholder" type="string"/>
+    
+    <aura:attribute name="isOrder" type="Boolean" default="false"/>
+    <aura:attribute name="isOrder1" type="Boolean" default="false"/>
+    
+    <aura:attribute name="searchText" type="String" default=""/>
+    <aura:attribute name="header" type="String" default=""/>
+    <aura:attribute name="activeFilter" type="string" default="all" description="The currently selected actions filter"/>
+    <aura:attribute name="rawData" type="Object" description="Stores the currently displayed rows of data"/>
+    <aura:attribute name="allOrderList" type="Order[]"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.fetchOrder}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- Additional init function added by David -->
+    <aura:handler name="init" value="{!this}" action="{!c.populateFilters}"/>
+    
+    <aura:attribute name="selectedCompany" type="String" default="None"/>
+    <aura:attribute name="selectedOwner" type="String" default="None"/>
+    <aura:attribute name="selectedProduct" type="String" default="None"/>
+	<!--VBGSD-153-->
+	<aura:attribute name="selectedOrderType" type="String" default="None" access="private"/>
+    <aura:attribute name="companyOptions" type="List"/>
+    <aura:attribute name="ownerOptions" type="List"/>
+    <aura:attribute name="productOptions" type="List"/>
+    <!--VBGSD-153-->
+	<aura:attribute name="orderTypeOptions" type="List" access="private"/>
+    <!--Attibutes added for flag modal-->
+    <aura:attribute name="isOpen" type="Boolean" description="for checking if flag modal is open"/>
+    <aura:attribute name="modalMessage" type="String" description="for showing what message to display based on whether an order is flagged or not"/>
+    <aura:attribute name="flagAction" type="String" description="for checking if user wants to flag or unflag an order"/>
+    <aura:attribute name="orderId" type="String" description="Stores the orderId the user clicks on"/>
+
+    <!--Sandra added these attributes for lazy loading-->
+    <aura:attribute name="enableInfiniteLoading" type="Boolean" default="true"/>
+    <aura:attribute name="initialRows" type="Integer" default="11"/>
+    <aura:attribute name="currentCount" type="Integer" default="11"/>
+    <aura:attribute name="totalRows" type="Integer" default="0"/>
+    <!--Set loadOffset to trigger when to load more rows-->
+    <!--set default to how many pixels the table's scroll position is from the bottom of table -->
+    <aura:attribute name="loadOffset" type="Integer" default="1"/>
+    
+    <!-- changes are made by moina to add the advanced search -->   
+    <!-- Comment Starts -->
+    <aura:attribute name="filter" type="String" default=""/>
+    <aura:handler event="c:SearchKeyChange" action="{!c.fetchOrder}"/>
+    <!--<aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>--><!--commented deprecated events-->
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="OrderNameIcon" type="String" default="utility:sort"/>
+    <aura:attribute name="SearchFlg" type="Boolean" default="false"/>
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <div>
+        <aura:if isTrue="{!v.isOrder}">
+            <h1 class="orderWorklistHeader slds-m-bottom_large">Order Worklist |<a style="color:black" onclick="{!c.handlevoice}">Voice Worklist</a> |</h1>
+        </aura:if>
+        <aura:if isTrue="{!v.isOrder1}">
+            <h1 class="orderWorklistHeaderDynamic slds-m-bottom_large">Order Worklist</h1>
+        </aura:if>
+    </div>
+    <div class="slds-form-element slds-lookup" data-select="single">
+        <div  class="formElementMargin slds-form-element__control slds-input-has-icon slds-input-has-icon_left-right">
+            <lightning:buttonIcon iconName="utility:search" variant="bare" onclick="{! c.updateFilter }" alternativeText="Search" class="slds-input__icon searchiconClass slds-input__icon-left" aura:id="searchButton"/>
+            
+            <div class="slds-input-has-icon">
+                <div class="slds-m-around--x-small">
+                    <lightning:button  iconName="utility:close" class="slds-input__icon slds-input__icon_right closeClass"  onclick="{! c.clearfilter }" />
+                </div>
+                <ui:inputText value="{!v.filter}"  class="slds-lookup__search-input slds-input" placeholder="Search Worklist" keyup="{!c.updateFilter}" />
+                
+            </div>
+        </div>
+    </div>
+    <!-- Comment Ends -->  
+    <!-- end of Advanced search --> 
+    <!-- filter components added by David -->
+    <!-- Comment Starts -->
+     <p id="advancefilter"  style="
+    display: inline;
+    float: left;
+     padding-left: 5px;
+    font-size: 12pt;
+    padding-top: 10px;"
+>Filter by:</p>
+	<div class="tableFilteringOptions" style="font-family: NeueHaasGroteskDisplayBold; height: 35px; margin-top: 20px; margin-bottom: 10px; font-size: 14px;">
+    <lightning:combobox name="Company Filter" class="slds-float_left slds-m-right_small OrderComboBox" options="{!v.companyOptions}" variant="label-hidden" onchange="{!c.updateCompany}" placeholder="All Companies" aura:id="companyFilter" style="padding-left: 5px; width: 295px;"/>
+    <lightning:combobox name="Owner Filter" class="slds-float_left slds-m-right_small OrderComboBox" options="{!v.ownerOptions}" variant="label-hidden" onchange="{!c.updateOwner}" placeholder="All Owners" aura:id="ownerFilter" style="width:200px;" />
+    <!--<lightning:combobox name="Product Filter" class="slds-float_left slds-m-right_small OrderComboBox" options="{!v.productOptions}" variant="label-hidden" onchange="{!c.updateProduct}" placeholder="All Product Offerings" aura:id="productFilter"/>	-->
+        <lightning:combobox name="Product Filter" class="slds-float_left slds-m-right_small OrderComboBox" options="{!v.productOptions}" variant="label-hidden" onchange="{!c.updateProduct}" placeholder="All Product Categories" aura:id="productFilter" style="width:220px;"/>
+	<!--VBGSD-153 Start-->
+	<lightning:combobox name="OrderType Filter" class="slds-float_left slds-m-right_small OrderComboBox" options="{!v.orderTypeOptions}" variant="label-hidden" onchange="{!c.updateOrderType}" placeholder="Activity" aura:id="orderTypeFilter"  style="width:125px;"/>
+	<!--VBGSD-153 End-->
+    <span style ="border-radius:0px;"><lightning:button name="Apply Filter" class="slds-float_left applybutton" variant="destructive" onclick="{!c.updateOrders}">Apply</lightning:button></span>
+    <!-- Comment Ends -->
+    <!-- end of filter components added by David -->
+    <span style ="border-radius:0px;"><lightning:button variant="neutral" class="buttonStyling slds-float_right slds-m-right_small slds-text-color_default downloadBtn" label="Download Worklist" onclick="{! c.downloadWorklist}"/>
+    </span>
+        <br></br>
+    <br></br>
+	</div>
+    <!--<div ><b class="OrderWorklistHeader">Order Worklist</b>
+        <a style="float:right;" href="/Partner/s/myorderspage">Download Full WorkList</a></div> -->
+    <!-- height was 36.3774rem-->
+    <div class="container tableHeight" style="height: calc(100vh - 375px) ;margin-top: 20px ;border: 1px solid lightgrey !important;
+                                              box-shadow: 1px 2px 3px grey !important;margin-bottom: 0.9375rem !important;">
+        <lightning:datatable columns="{!v.mycolumns}" 
+                             data="{!v.orderList}" 
+                             keyField="id"
+                             aura:id="orderTable"
+                             hideCheckboxColumn="true"
+                             sortable="true"
+                             onsort="{!c.sortTable}"
+                             sortedBy="{!v.sortBy}"
+                             sortedDirection="{!v.sortDirection}"
+                             class="datatable"
+                             onheaderaction="{! c.handleHeaderAction }"
+                             enableInfiniteLoading="{!v.enableInfiniteLoading}"
+                             loadMoreOffset="{!v.loadOffset}"
+                             onloadmore="{!c.handleLoadMore}"
+                             onrowaction="{!c.handleRowAction}"
+                             />
+    </div>
+
+    <!-- For flag modal -->
+    <aura:if isTrue="{!v.isOpen}">
+        <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-modal__header_empty">
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-align_absolute-center slds-m-top_large">{!v.modalMessage}</h2>
+                </header>
+                <lightning:buttonIcon iconName="utility:close"
+                                      onclick="{! c.closeModal }"
+                                      alternativeText="close"
+                                      variant="bare-inverse"
+                                      class="slds-modal__close"/>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <div class="slds-align_absolute-center">
+                        <lightning:button class="noButton" label="No" onclick="{! c.closeModal }"/>
+                        <lightning:button class="yesButton" label="Yes" onclick="{! c.editFlag }"/>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>
