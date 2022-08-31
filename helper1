@@ -1,0 +1,137 @@
+({
+    COLUMNS: [
+             
+        {
+            
+            label: 'Request number', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+             cellAttributes: {
+                 classs: { fieldName: 'displayClass' } ,
+                 iconPosition: 'right', 	// Anthony
+                 style:'font-weight:bold !important;font-family:NeueHaasGroteskDisplayBold !important;'
+             },
+            initialWidth: 150,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'Network Record', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 150,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'Map Type', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 110,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'State', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 80,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'Expiration Date', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 150,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'Status', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 80,		
+            hideDefaultActions: true
+        },
+
+        {
+            label: 'Downloadings Remaining', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 220,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'Action', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 80,		
+            hideDefaultActions: true
+        },
+        {
+            label: 'Related Requests', 
+            fieldName: '', 
+            type: 'text',
+            sortable:true,
+            iconName: 'utility:sort',
+            iconPosition: 'right', 	
+           
+            initialWidth: 150,		
+            hideDefaultActions: true
+        }
+    ],
+
+    setColumns: function(component) {
+        component.set('v.mycolumns', this.COLUMNS);
+    },
+    fetchMapHelper: function(component,event, helper){
+         var action = component.get("c.getMapData");
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+            if(state === "SUCCESS")
+            {
+                var mapDataList = response.getReturnValue();
+                var mapDataArray = [];
+               /* for(int i=0; i<mapDataList.length; i++){
+                    mapDataArray.push({label: mapDataList[i],name: mapDataList[i]})
+                }*/
+                console.log(mapDataArray);
+                component.set("v.mapList", mapDataArray);
+            }
+            else
+            {
+                console.log("State was: " + state);
+            }
+        });
+        $A.enqueueAction(action);
+	
+    }
+   
+})
