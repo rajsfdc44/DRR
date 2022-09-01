@@ -1,1 +1,5 @@
 System.debug(System.URL.getSalesforceBaseUrl().toExternalForm()+'/secur/frontdoor.jsp?sid='+UserInfo.getSessionId().substring(15));
+
+
+
+https://vpscx--r6intdev.sandbox.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQBh23I4l043M0ZnGIiWf4JLqvkTRyfYpv43649TLQXyoyk_dYS0wB0jqlp5WuGf1YnXEyts9p7F0SCrOxA7eVgRzeioq
