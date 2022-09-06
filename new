@@ -1,11 +1,1 @@
 
-https://vpscx--r6intdev.sandbox.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQJv7p4hmbvxkr.Moj7Unh0top1j4HmIpiNeXMee5SJ7d8G9Ad0bf78bB_kac8Efumk8mX2nRDbdmZF6VzTflxig4joJk
-
-
-
-
-
-Select Name,KMZ_ES_Number__c,KMZ_Circuit_ID__c,KMZ_Map_Type__c,KMZ_State__c,KMZ_Expiration_Date__c,KMZ_Status__c,Downloads_Remaining__c,KMZ_Quote_ID__c,KMZ_Order_Name_PON__c from KMZ_Map_Request__c
-
-Object Name:-KMZ Map Request
-API Name:-KMZ_Map_Request__c
