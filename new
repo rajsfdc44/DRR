@@ -1,1 +1,8 @@
+Network Record column data:
+Network Record - KMZ_ES_Number__c  - Fiber Availability and Quoted Route 
+Network Record - KMZ_Circuit_ID__c - As Provisioned 
 
+Related Request column data:
+Related Request - KMZ_Quote_ID__c - Quoted Route
+Related Request - KMZ_Order_Name_PON__c - As Provisioned
+Related Request -blank - Fiber Availability
