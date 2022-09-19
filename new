@@ -24,3 +24,29 @@ Download Map:         Active
 
 
 https://vpscx--r6intdev.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQNDwHOtDJi4b6WQ1fpgl_y9Yv9B7G6bxFeMZVbkWQ8il90TsDER7Vele.HFh.ObkfWFLJS_1wBRR1Jkmo5B7S3R_U1P4
+
+
+    Helper.js
+  ({
+    COLUMNS: [
+        //Added for popup details-start
+        { 
+            label: 'Actions',  
+            type: 'action',  
+            cellAttributes: {
+                classs: { fieldName: 'displayClass' } ,
+                iconPosition: 'right', 
+                alignment: 'center',
+                style:'font-weight:normal !important;font-family:NeueHaasGroteskDisplayBold,sans-serif !important;'
+            },
+			typeAttributes: { rowActions: [{
+  if(KMZ_Status__c=="Active" OR KMZ_Status__c=="Pending" OR KMZ_Status__c=="Not Approved" OR KMZ_Status__c=="Canceled" OR KMZ_Status__c=="Expired"){
+                'label': 'View Details',
+                'name': 'view_details'
+                }
+                 else{
+                'label': 'View Details',
+                'name': 'view_details',  
+                'disabled':'true'
+                 }
+			}	 
