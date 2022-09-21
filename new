@@ -8,3 +8,27 @@ Related Request - KMZ_Order_Name_PON__c - As Provisioned
 Related Request -blank - Fiber Availability
 
 https://r6intdev-vpsverizon.cs15.force.com/Partner/s/ordersummary?orderId=801e0000002FxwcAAC
+
+get the baseurl and append ordersummary?orderId=801e0000002FxwcAAC
+-->load that url inside a popup
+
+https://salesforce.stackexchange.com/questions/180090/want-to-open-custom-url-as-a-pop-up-in-lightning
+check if this helps
+------------------------------------------------
+Location: VPS_Location__c
+Project ID: VPS_Project_Id__c
+Early Acceptance: VPS_Early_Acceptance__c
+Requestor: VPS_Requestor_Contact__c(lookup-contact)
+End Customer: VPS_To_EndCustomer_Name__c
+Implementation: VPS_Implementation_Contact__c (lookup-contact)
+Design: VPS_Design_Contact__c(lookup-contact)
+CCNA:VPS_CCNA__c
+
+Company: --
+Additional Location Details: --
+
+Order Name: Name/ VPS_Order_Name__c
+Requested Due Date: ------ (vlocity_cmt__DueDate__c/VPS_Due_Date__c)
+Product:-----(VPS_Product__c/ProductName__c)
+Alternet Local:---(VPS_Alternate_Contact__c/VPS_To_Alternate_Contact__c)
+Contacts: --- there are many contact fields  are there
