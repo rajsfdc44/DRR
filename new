@@ -34,3 +34,6 @@ Alternet Local:---(VPS_Alternate_Contact__c/VPS_To_Alternate_Contact__c)
 Contacts: --- there are many contact fields  are there
 ---------------------------------
 https://vpscx--r6intdev.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQMEggeb0Pdh69JTgP2B8KIvUxJYBbef8MqBzieX1NbGZDszRev.JpKEWhsv8keCX07ev9OwYwLUZHOwn6ZrWl1YMLSRe
+
+You can check this Aura component VPS_OrderWorklist_LightningDatatable
+handleRowAction(Controller)-->cloneOrder(helper)--here they are creating the url and opening in new page but we need to show in popup
