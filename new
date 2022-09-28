@@ -37,4 +37,4 @@ Contacts: --- there are many contact fields  are there
 You can check this Aura component VPS_OrderWorklist_LightningDatatable
 handleRowAction(Controller)-->cloneOrder(helper)--here they are creating the url and opening in new page but we need to show in popup
 
-https://vpscx--r6intdev.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQHABbhE_BgAz0yNW2eiEGAqwxM4bnD.ALISvM_YiO3PHgE8N0YInh8aXUcBETPJtQ_kToLwD8gg_fMGDuy85nOZ0ICrE
+https://vpscx--r6intdev.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQFiQELbx4oOrONwhlh5HvqY1c1pYlFjeSM1TMecdwUbYiVx5X_cVOkKVnRU8ga0vDqzXLI1DXTvEd27lk2.CE.lrMSJ.
