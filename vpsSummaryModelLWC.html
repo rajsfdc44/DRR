@@ -1,0 +1,1670 @@
+<!--
+  @description       :
+  @author            : ChangeMeIn@UserSettingsUnder.SFDoc
+  @group             :
+  @last modified on  : 01-31-2022
+  @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
+  Modifications Log
+  Ver   Date         Author                               Modification
+  1.0   01-31-2022   ChangeMeIn@UserSettingsUnder.SFDoc   Initial Version
+-->
+<template>
+    <template if:true={isModalOpen}>
+        <!-- Modal/Popup Box LWC starts here -->
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <lightning-layout size="12" class="BorderTable1 header" bgcolor="#000000">
+                    <lightning-layout-item size="11" class="textBold textSize2 paddingText">
+                        Summary ({quote.name})
+                    </lightning-layout-item>
+                    <lightning-layout-item size="1" class="iconPosition">
+                        <lightning-button-icon icon-name="utility:close" alternative-text="Settings"
+                            variant="border-inverse" title="Close" onclick={closeModal}></lightning-button-icon>
+                    </lightning-layout-item>
+                </lightning-layout>
+
+                <!-- Modal/Popup Box LWC body starts here -->
+                <div class="slds-modal__content slds-modal_medium textSize slds-boxt" id="modal-content-id-1">
+              <!--   <template if:true={GenICBFlow}> -->
+                    <lightning-tabset class="tabPosition">
+                        <div class="container ">
+                            <lightning-tab label="Multi Quote Summary">
+                                <lightning-layout size="12">
+                                    <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        <b>Company:</b>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        {quote.companyInformation.CompanyName}
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        <b>Product:</b>
+                                    </lightning-layout-item>
+                                    <template if:true={showSWUEProduct}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {productSWUE}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showIDEProduct}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.productOffering}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showOWSProdOffering}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.productOffering}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <!--Start - Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                    <template if:true={showPlProduct}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.portConfiguration}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <!--End - Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                    <template if:true={showPIPProduct}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.productOffering}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:false={showOWSProdOffering}>
+                                        <template if:false={showPlProduct}>
+                                            <!--Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                            <template if:false={showPIPProduct}>
+                                                <!--Added by Pushpendra | Ethernet International-->
+                                                <template if:false={showIntSWUEProduct}>
+                                                    <lightning-layout-item size="2" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        <b>Location:</b>
+                                                    </lightning-layout-item>
+                                                </template>
+                                                <template if:true={showIntSWUEProduct}>
+                                                    <lightning-layout-item size="2" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        <b>UNI Location:</b>
+                                                    </lightning-layout-item>
+                                                </template>
+
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.location.value}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!--Start - Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                    <template if:true={showPlProduct}>
+                                        <!-- Start - Added by Sakthi brindha | MLQ PL DAL | 22-Apr-2022 -->
+                                        <template if:true={isNotDALProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>From Location:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.location.value}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <template if:false={isNotDALProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Location:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.location.value}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Product Offering:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.productOffering}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <!--End - Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                    <template if:true={showPIPProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Location:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.location.value}
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Speed: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.bandwidth}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showOWSProdOffering}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>From Location:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.location.value}
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Speed: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.bandwidth}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:false={showPIPProduct}>
+                                        <template if:false={showPlProduct}>
+                                            <template if:true={showIntSWUEProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>UNI Location Country: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.location.countryName}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!--Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                    <!-- <template if:false={showOWSProdOffering}>
+                                        <template if:false={showPlProduct}>
+                                            
+                                            <template if:false={showPIPProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Speed3 : </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {speedDisplayText}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template> -->
+                                </lightning-layout>
+                                <!--For Additional Features-->
+                                <template if:true={showOWSProdOffering}>
+                                    <lightning-layout>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Third Party Cross-Connect:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.tpCrossConnectFrom}
+                                        </lightning-layout-item>
+                                        <template if:true={showFromDS}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Data Center Provider:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.productAttributes.dataCenterFrom}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </lightning-layout>
+                                </template>
+                                <!--For Additional Features-->
+                                <!--Start - Added By Surya || sline UNIEVC combo changes || 10-Jun-2022-->
+                                <lightning-layout>
+                                    <template if:false={showOWSProdOffering}>
+                                        <template if:false={showPlProduct}>
+                                            <template if:false={showPIPProduct}>
+                                                <template if:true={showIntSWUEProduct}>
+                                                    <template if:true={showNNIHUBLocation}>
+                                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                                            padding="around-small" class="slds-cell-wrap">
+                                                            <b>NNI/HUB Location:</b>
+                                                        </lightning-layout-item>
+                                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                                            padding="around-small" class="slds-cell-wrap">
+                                                            {quote.tolocation.value}
+                                                        </lightning-layout-item>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <template if:false={showOWSProdOffering}>
+                                        <template if:false={showPlProduct}>
+                                            <template if:false={showPIPProduct}>
+                                                <template if:true={showIntSWUEProduct}>
+                                                    <template if:true={showNNIHUBLocation}>
+                                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                                            padding="around-small" class="slds-cell-wrap">
+                                                            <b>NNI/HUB Location Country: </b>
+                                                        </lightning-layout-item>
+                                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                                            padding="around-small" class="slds-cell-wrap">
+                                                            {quote.tolocation.countryName}
+                                                        </lightning-layout-item>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!--End - Added By Surya || sline UNIEVC combo changes || 10-Jun-2022-->
+                                <!--Start - Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={plAccesstype}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>From Access:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {fromacc}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Speed: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.plSpeed}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <template if:false={isNotDALProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Access:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.access.value}
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Speed: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <!-- {quote.productAttributes.plSpeed} -->DS1
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <template if:true={isNotDALProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Expected Carrier:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {msg}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <template if:false={isUSPL}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <!-- <b>Configuration: </b> Reshma Updated 29-04-22-->
+                                                <b>Access Type: </b>
+                                            </lightning-layout-item>
+                                            <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                            <template if:true={isNotDALProduct}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.productAttributes.plConfiguration}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={isNotDALProduct}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <!-- {quote.productAttributes.plConfiguration} --> DAL
+                                                </lightning-layout-item>
+                                            </template>
+                                            <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        </template>
+                                        <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <template if:false={isNotDALProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Terms: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <!-- {quote.term} Year(s) --> 1 Year(s)
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={isUSPL}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Access Type: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.productAttributes.FromAccessType}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={isUSPL}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>POP CLLI: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.accessRecResponse.fromPopClli}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:false={isUSPL}>
+                                            <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                            <template if:true={isNotDALProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>From LATA:</b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.location.addrValResponse.lata}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                        <template if:true={isUSPL}>
+                                            <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                            <template if:true={isNotDALProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>To Location:</b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.tolocation.value}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+
+                                <!-- Start - Added by Sakthi Brindha | PL MLQ -->
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:false={isUSPL}>
+                                            <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                            <template if:true={isNotDALProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>To Location:</b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.tolocation.value}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!-- End - Added by Sakthi Brindha | PL MLQ -->
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={plToAccesstype}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>To Access: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {toacc}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- Start - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                        <template if:true={isNotDALProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Terms: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.term} Year(s)
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!-- End - Added by Sakthi Brindha | MLQ PL DAL - 22- Apr-2022 -->
+                                    </template>
+                                </lightning-layout>
+
+                                <!--End - Added By Manav || PL MLQ changes || 15-Mar-2022-->
+                                <template if:true={showOWSProdOffering}>
+                                    <lightning-layout size="12">
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>To Location:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.tolocation.value}
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Terms: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.term} Year(s)
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    <!--For Additional Features-->
+                                    <template if:true={showOWSProdOffering}>
+                                        <lightning-layout>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Third Party Cross-Connect:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.productAttributes.tpCrossConnectTo}
+                                            </lightning-layout-item>
+                                            <template if:true={showToDS}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Data Center Provider:</b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.productAttributes.dataCenterTo}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </lightning-layout>
+                                    </template>
+                                    <!--For Additional Features-->
+                                    <lightning-layout size="12">
+                                        <template if:false={showCPProdOffering}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>From OE/Term Type:</b>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={showCPProdOffering}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Termination Type:</b>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.fromOE}
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Contract: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <template if:true={showLocationDetail}>{quote.contract}
+                                                {zoneValue}</template>
+                                            <template if:false={showLocationDetail}>{quote.contract}</template>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    <lightning-layout size="12">
+                                        <template if:true={showCPProdOffering}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>From Access:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.access.value}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Protection:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.protectedWave}
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    <lightning-layout size="12">
+                                        <template if:false={showCPProdOffering}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>To OE/Term Type:</b>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={showCPProdOffering}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Termination Type:</b>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.toOE}
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Expire Date:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.expiryDate}
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                    <lightning-layout size="12">
+                                        <template if:true={showCPProdOffering}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>To Access:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.access.value}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={isVettingEnabledModel}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Case #:</b>
+                                            </lightning-layout-item>
+                                            <template if:true={isCapacityCheck}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    No Capacity Check
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={isCapacityCheck}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.nfid}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </lightning-layout>
+                                </template>
+                                <lightning-layout size="12">
+                                    <template if:false={showIntSWUEProduct}>
+                                        <template if:true={showServiceType}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Service Type: </b>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={showServiceType}>
+                                            <template if:true={showIDPlusProduct}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.access.carrierDiversity.serviceType}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={showIDPlusProduct}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.accessRecResponse.serviceType}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <template if:false={showOWSProdOffering}>
+                                        <template if:false={showPlProduct}>
+                                            <!-- Start- Added by Sakthi Brindha  | VBGSP-7001 -->
+                                            <template if:true={showTLSProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Access Type: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.access.value}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <!-- End- Added by Sakthi Brindha  | VBGSP-7001 -->
+                                            <!--Added false condition By Manav || PL MLQ changes || 15-Mar-2022-->
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Terms: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.term} Year(s)
+                                            </lightning-layout-item>
+
+                                            <!-- <template if:false={showServiceType}>
+                                                <template if:true={showIDPlusProduct}>
+                                                    <lightning-layout-item size="2" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        <b>Verizon Legal Entity: </b>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        {verizonLegalEntity}
+                                                    </lightning-layout-item>
+                                                </template>
+                                                <template if:true={showIntSWUEProduct}>
+                                                    <template if:true={showVLEForSWUE}>
+                                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                                            padding="around-small" class="slds-cell-wrap">
+                                                            <b>Verizon Legal Entity: </b>
+                                                        </lightning-layout-item>
+                                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                                            padding="around-small" class="slds-cell-wrap">
+                                                            {verizonLegalEntity}
+                                                        </lightning-layout-item>
+                                                    </template>
+                                                </template>
+                                              </template> -->
+                                            <template if:true={showPIPProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Access Category: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.productAttributes.accessCategory}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!-- Added by Ashish || Ethernet International || 8885 Fix -->
+                                <lightning-layout size="12">
+                                    <!--Added by Pushpendra | Ethernet International-->
+                                    <template if:false={showPlProduct}>
+                                        <template if:false={showPIPProduct}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Speed: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {speedDisplayText}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!-- End -->
+                                <lightning-layout size="12">
+                                    <!-- Added By Sushmitha  For ID+ -->
+                                    <template if:true={showServiceType}>
+                                        <template if:true={showIDPlusProduct}>
+                                            <template if:true={showVLEForIDPlus}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Verizon Legal Entity: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {verizonLegalEntity}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                        <!--Added by Pushpendra | Ethernet International-->
+                                        <template if:true={showIntSWUEProduct}>
+                                            <template if:true={showVLEForSWUE}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Verizon Legal Entity: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {verizonLegalEntity}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!-- Ended By Sushmitha For ID+  -->
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPortConfig}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Port Configuration: </b>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showPortConfig}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.portConfiguration}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <!--Nikhil added for DDoS-->
+                                    <template if:true={isDDoS}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>DDoS Security: </b>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={isDDoS}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            Yes
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+
+                                <lightning-layout>
+                                    <template if:true={showIntSWUEProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>EVC Performance:</b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.tlsperformance}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showIntSWUEProduct}>
+                                        <template if:true={showGeographicType}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Geographic Type: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.accessRecResponse.geographicType}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <!-- End - Added by Sakthi Brindha | PL Summary -->
+                                    <template if:false={showOWSProdOffering}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Contract: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <template if:true={showLocationDetail}>{contractVal}</template>
+                                            <template if:false={showLocationDetail}>{contractVal}</template>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:false={showServiceType}>
+                                        <template if:true={showIDPlusProduct}>
+                                            <template if:true={showVLEForIDPlus}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Verizon Legal Entity: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {verizonLegalEntity}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                        <template if:true={showIntSWUEProduct}>
+                                            <template if:true={showVLEForSWUE}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Verizon Legal Entity: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {verizonLegalEntity}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showUniAccess}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>UNI Access: </b>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showAccess}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Access: </b>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showUniAccess}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.accessRecResponse.litCapability}
+                                            ({quote.accessRecResponse.accessType} {zoneValueAccess})
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showAccess}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.accessRecResponse.litCapability}
+                                            ({quote.accessRecResponse.accessType})
+                                        </lightning-layout-item>
+                                    </template>
+                                    <!--<template if:true={showIntSWUEProduct}>
+                                        <template if:true={showServiceType}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Service Type: </b>
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={showServiceType}>
+                                            <template if:true={showIDPlusProduct}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.access.carrierDiversity.serviceType}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={showIDPlusProduct}>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.accessRecResponse.serviceType}
+                                                </lightning-layout-item>                                            
+                                            </template>
+                                        </template>
+                                    </template>-->
+                                    <template if:false={showOWSProdOffering}>
+                                        <!-- Start - Added by Sakthi Brindha | PL Summary -->
+                                        <template if:true={showPlProduct}>
+                                            <!-- Start - Added by Sakthi Brindha | MLQ PL DAL Summary -->
+                                            <template if:true={isNotDALProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Expected Carrier: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {tomsg}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <template if:false={isNotDALProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>LATA: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.location.addrValResponse.lata}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <!-- End- Added by Sakthi Brindha | MLQ PL DAL Summary -->
+                                        </template>
+
+
+                                        <template if:true={isIOFSpeed}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>IOF Miles: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.productAttributes.iofMileage}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPIPProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>EF Real Time CAR: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.carSpeed}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <!-- Start - Added by Sakthi Brindha | PL Summary -->
+                                    <template if:true={showPlProduct}>
+                                        <template if:false={isUSPL}>
+                                            <!-- Start - Added by Sakthi brindha | MLQ PL DAL | 22-Apr-2022 -->
+                                            <template if:true={isNotDALProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>To LATA: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.tolocation.addrValResponse.lata}
+                                                </lightning-layout-item>
+                                            </template>
+                                            <!-- End - Added by Sakthi brindha | MLQ PL DAL | 22-Apr-2022 -->
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Expire Date:</b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.expiryDate}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={isUSPL}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>POP CLLI: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.accessRecResponse.toPopClli}
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Expiration Date: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.expiryDate}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={isUSPL}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Access Type: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.productAttributes.toAccessType}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={isUSPL}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Mileage: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.accessRecResponse.plMileage}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!-- //End - Added by Sakthi Brindha | PL -->
+
+                                <!-- Start - Added by Sakthi Brindha | Summary PL  -->
+                                <lightning-layout size="12">
+                                    <template if:true={showPlProduct}>
+                                        <template if:true={isTSP}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>TSP: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {quote.tspVal}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!-- End - Added by Sakthi Brindha | Summary PL -->
+
+                                <lightning-layout size="12">
+                                    <template if:true={showTLSProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Customer VLAN: </b>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showTLSProduct}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.protectedWave}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showTLSProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Performance: </b>
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showTLSProduct}>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.productAttributes.tlsperformance}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <template if:false={showPIPProduct}>
+                                        <template if:false={showPlProduct}>
+                                            <!--Added by Pushpendra | Ethernet International-->
+                                            <template if:false={showIntSWUEProduct}>
+                                                <template if:false={isTSP}>
+                                                    <lightning-layout-item size="2" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        <b>TSP: </b>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        None
+                                                    </lightning-layout-item>
+                                                </template>
+                                            </template>
+                                            <!--Added by Pushpendra | Ethernet International-->
+                                            <template if:true={showIntSWUEProduct}>
+                                                <template if:true={isTSPShow}>
+                                                    <lightning-layout-item size="2" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        <b>TSP: </b>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        {quote.productAttributes.TSPOption}
+                                                    </lightning-layout-item>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!--Start - Added By Surya || sline UNIEVC combo changes || 10-Jun-2022-->
+                                    <template if:false={showPIPProduct}>
+                                        <template if:false={showPlProduct}>
+                                            <template if:true={showIntSWUEProduct}>
+                                                <template if:true={showNid}>
+                                                    <lightning-layout-item size="2" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        <b>NID: </b>
+                                                    </lightning-layout-item>
+                                                    <lightning-layout-item size="4" style="font-size: smaller"
+                                                        padding="around-small" class="slds-cell-wrap">
+                                                        {quote.accessRecResponse.nid}
+                                                    </lightning-layout-item>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!--End - Added By Surya || sline UNIEVC combo changes || 10-Jun-2022-->
+                                </lightning-layout>
+                                <!--Start - Added By Surya || sline UNIEVC combo changes || 10-Jun-2022-->
+                                <lightning-layout size="12">
+                                    <template if:false={showPIPProduct}>
+                                        <template if:false={showPlProduct}>
+                                            <template if:true={showIntSWUEProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>Currency: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.currencySelected}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template>
+                                    <!-- <template if:false={showPIPProduct}>
+                                        <template if:false={showPlProduct}>
+                                            <template if:true={showIntSWUEProduct}>
+                                                <lightning-layout-item size="2" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    <b>UNI Location Country: </b>
+                                                </lightning-layout-item>
+                                                <lightning-layout-item size="4" style="font-size: smaller"
+                                                    padding="around-small" class="slds-cell-wrap">
+                                                    {quote.location.countryName}
+                                                </lightning-layout-item>
+                                            </template>
+                                        </template>
+                                    </template> -->
+                                </lightning-layout>
+                                <!--End - Added By Surya || sline UNIEVC combo changes || 10-Jun-2022-->
+                                <!-- Added by Sushmitha for TSP ID+ -->
+                                <lightning-layout size="12">
+                                    <template if:true={showIDPlusProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Currency: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.currencySelected}
+                                        </lightning-layout-item>
+                                    </template>
+
+                                    <template if:true={showIDPlusProduct}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Location Country: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.location.countryName}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+
+                                <lightning-layout size="12">
+                                    <template if:true={showIDPlusProduct}>
+                                        <template if:true={showDiversity}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b> Diversity: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                Carrier
+                                            </lightning-layout-item>
+                                        </template>
+                                        <!--      <template if:false={showDiversity}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b> Diversity: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                None
+                                            </lightning-layout-item>
+                                        </template> -->
+                                    </template>
+
+                                    <template if:true={showIDPlusProduct}>
+                                        <template if:true={showDiversity}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Provider: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                {ProviderValue}
+                                            </lightning-layout-item>
+                                        </template>
+                                        <template if:true={isRecommended}>
+                                            <lightning-layout-item size="2" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Expected Carrier: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="4" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <!-- {quote.accessRecResponse.provider} -->
+                                                {quote.accessRecResponse.accessProviderName}
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                </lightning-layout>
+                                <!-- Ended By Sushmitha  For ID+ -->
+
+                                <!-- Feb 2022 Release Changes START -->
+                                <lightning-layout size="12">
+                                    <template if:true={showExpectedCarrier}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Expected Carrier: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.accessRecResponse.accessProviderName}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={showLocationDetail}>
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Location Detail: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {locationDetailsVal}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <!-- Feb 2022 Release Changes END -->
+                                <template if:true={isVettingEnabledModel}>
+                                    <lightning-layout size="12">
+                                        <lightning-layout-item size="2" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Remarks: </b>
+                                        </lightning-layout-item>
+                                        <lightning-layout-item size="4" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.remarks}
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </template>
+                                <hr style="background-color:black"><b> </b></hr>
+                                <lightning-layout size="12">
+                                    <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        <b>Pricing:</b>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        <!--For Currnecy Change-->
+                                        <b>MRC: </b>
+                                        <!--${quote.prices.mrc}--> {toatlMRC}
+                                    </lightning-layout-item>
+                                    <template if:true={showOWSProdOffering}>
+                                        <template if:true={isVettingEnabledModel}>
+                                            <lightning-layout-item size="3" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <b>Construction NRC: </b>
+                                            </lightning-layout-item>
+                                            <lightning-layout-item size="3" style="font-size: smaller"
+                                                padding="around-small" class="slds-cell-wrap">
+                                                <template if:true={isCapacityCheck}>Not Checked</template>
+                                                <!--For Currnecy Change-->
+                                                <template if:false={isCapacityCheck}>
+                                                    <!--$-->{constNRCval}
+                                                </template>
+                                            </lightning-layout-item>
+                                        </template>
+                                    </template>
+                                    <template if:true={showTargetPrice}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <!--For Currnecy Change-->
+                                            <b>Target MRC: </b>
+                                            <!--${quote.prices.targetMRC}-->{targetMRC}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={displayCustomQuoteComments}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Request to Verizon</b>
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        <b></b>
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                        <!--For Currnecy Change-->
+                                        <b>NRC: </b>
+                                        <!--${quote.prices.nrc}-->{totalNRC}
+                                    </lightning-layout-item>
+                                    <template if:true={showTargetPrice}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <!--For Currnecy Change-->
+                                            <b>Target NRC: </b>
+                                            <!--${quote.prices.targetNRC}-->{targetNRC}
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={displayCustomQuoteComments}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.prices.comments}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                    </lightning-layout-item>
+                                    <template if:true={showTargetPrice}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={displayCustomQuoteComments}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>Comments from Verizon</b>
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <lightning-layout size="12">
+                                    <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                    </lightning-layout-item>
+                                    <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                        class="slds-cell-wrap">
+                                    </lightning-layout-item>
+                                    <template if:true={showTargetPrice}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                        </lightning-layout-item>
+                                    </template>
+                                    <template if:true={displayCustomQuoteComments}>
+                                        <lightning-layout-item size="3" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            {quote.prices.PCM_Comments}
+                                        </lightning-layout-item>
+                                    </template>
+                                </lightning-layout>
+                                <!-- Start Added by Ashish || Ethernet || 29/7/22-->
+                                <template if:true={showCapacityRequiredMsg}>
+                                    <lightning-layout size="12">
+                                        <lightning-layout-item size="12" style="font-size: smaller"
+                                            padding="around-small" class="slds-cell-wrap">
+                                            <b>{lable.mlqCapacityCheckMessage}</b>
+                                        </lightning-layout-item>
+                                    </lightning-layout>
+                                </template>
+                                <!-- End  Added by Ashish -->
+                            </lightning-tab>
+                            <lightning-tab label="Multi Quote History">
+                                <div class="container">
+                                    <div class="floatLeft">
+                                        <table class="Htable">
+                                            <thead>
+                                                <tr>
+                                                    <th class="tb1-header">
+                                                        <strong>Action</strong>
+                                                    </th>
+                                                    <template if:true={showOWSProdOffering}>
+                                                        <th class="tb1-header">
+                                                            <strong>Sub Status</strong>
+                                                        </th>
+                                                    </template>
+                                                    <th class="tb1-header">
+                                                        <strong>Owner</strong>
+                                                    </th>
+                                                    <th class="tb1-header">
+                                                        <strong>Date & Time</strong>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <template for:each={quoteHistDetailsSliced} for:item="history">
+                                                    <tr key={history.status}>
+                                                        <td class="tdStyle">{history.status}</td>
+                                                        <template if:true={showOWSProdOffering}>
+                                                            <template if:true={isCapacityCheck}>
+                                                                <td class="tdStyle">No Capacity Check</td>
+                                                            </template>
+                                                            <template if:false={isCapacityCheck}>
+                                                                <td class="tdStyle">{history.subStatus}</td>
+                                                            </template>
+                                                        </template>
+                                                        <td class="tdStyle">{history.userName}</td>
+                                                        <td class="tdStyle">{history.quotedate}</td>
+                                                    </tr>
+                                                </template>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <template if:true={showOWSProdOffering}>
+                                        <template if:false={showCPProdOffering}>
+                                            <div class="floatRight">
+                                                <table>
+                                                    <tr>
+                                                        <th class="tb1-header headerStyle">
+                                                            <P>Additional Information</P>
+                                                        </th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="thStyle">End User Customer Name:
+                                                            {quote.customerInformation.endCustomerName}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="thStyle">Customer Contact Name:
+                                                            {quote.customerInformation.customerContactName}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="thStyle">Customer Contact Phone:
+                                                            {quote.customerInformation.customerContactPhone}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="thStyle">Customer Contact Email:
+                                                            {quote.customerInformation.customerContactEmail}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="thStyle">Verizon Account Manager:
+                                                            {quote.customerInformation.vzAccountManager}</th>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </template>
+                                    </template>
+                                </div>
+                            </lightning-tab>
+                        </div>
+                    </lightning-tabset>
+             <!---   </template> -->
+                    <template if:true={GenICBFlow}>
+                        <lightning-layout size="12">
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Company:</b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.companyInformation.CompanyName}
+                            </lightning-layout-item>
+
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Product:</b>
+                            </lightning-layout-item>
+                            <template if:true={showSWUEProduct}>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {productSWUE}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:true={showIDEProduct}>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.productAttributes.productOffering}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:true={showOWSProdOffering}>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.productAttributes.productOffering}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:true={showPlProduct}>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.productAttributes.portConfiguration}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:true={showPIPProduct}>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.productAttributes.productOffering}
+                                </lightning-layout-item>
+                            </template>
+                        </lightning-layout>
+
+                        <lightning-layout size="12">
+                            <template if:true={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>From Location:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.location.value}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:false={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>Location:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.location.value}
+                                </lightning-layout-item>
+                            </template>
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Speed: </b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.bandwidth}
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout size="12">
+                            <template if:true={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>From Country Location:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.location.countryName}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:false={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>Country Location:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.location.countryName}
+                                </lightning-layout-item>
+                            </template>
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Terms: </b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.term} Year(s)
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout size="12">
+                            <template if:true={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>From Access:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.access.value}
+                                </lightning-layout-item>
+                            </template>
+                            <template if:false={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>Access:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.access.value}
+                                </lightning-layout-item>
+                            </template>
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Currency: </b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.currencySelected}
+                            </lightning-layout-item>
+                        </lightning-layout>
+
+                        <lightning-layout size="12">
+                            <template if:true={toLocation}>
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>To Location:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.tolocation.value}
+                                </lightning-layout-item>
+                            </template>
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Expires: </b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.expiryDate}
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <template if:true={toLocation}>
+                            <lightning-layout size="12">
+
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>To Location Country:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.tolocation.countryName}
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+                        <template if:true={toLocation}>
+                            <lightning-layout size="12">
+                                <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    <b>To Access:</b>
+                                </lightning-layout-item>
+                                <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                    class="slds-cell-wrap">
+                                    {quote.access.value}
+                                </lightning-layout-item>
+                            </lightning-layout>
+                        </template>
+                        <lightning-layout size="12">
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Customer Comments:</b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.prices.comments}
+                            </lightning-layout-item>
+                        </lightning-layout>
+                        <lightning-layout size="12">
+                            <lightning-layout-item size="2" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                <b>Pricing Comments:</b>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="4" style="font-size: smaller" padding="around-small"
+                                class="slds-cell-wrap">
+                                {quote.prices.PCM_Comments}
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>
