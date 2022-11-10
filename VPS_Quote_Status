@@ -1,0 +1,157 @@
+/**********************************************************************************************************
+* Class Name   : VPS_Quote_Status_Test
+* Description  : This is a test class for VPS_Quote_Status apex class. 
+* Created By   : Edward Nguyen
+* Created On   : 
+  Updated By   : Ram Sahu
+* Updated On   : 29-Apr-2019
+
+*  Modification Log :
+*  --------------------------------------------------------------------------------------
+*  * Developer                    Date                    Description
+*  * ------------------------------------------------------------------------------------                 
+*  
+*************************************************************************************************************/
+/*******************************************************************************************
+Component:      
+Project:  Verizon Partner Solution       
+User Story:     
+Description: This is a test class for VPS_Quote_Status apex class. 
+*********************************************************************************************
+VERSION              AUTHOR                 DATE(dd/mm/yyyy)                  Description
+1.0	<Name of the person>      <Date>        <Description of the changes>
+*********************************************************************************************/
+
+@isTest
+public class VPS_Quote_Status_Test {
+    @testSetup
+    static void setup() {
+         //Start - Modified/Added by Ashish || New Role changes || 4-2-2022
+        Account acct1 = new Account(Name = 'Main Account', ACNA__c = 'TST', VPS_CLE_NAME__c = 'Main CLE', RecordTypeId = [SELECT Id FROM RecordType WHERE Name = 'Business' AND SobjectType = 'Account' LIMIT 1].Id);
+        insert acct1;
+        
+        
+        
+        Contact con1 = new Contact(accountid=acct1.Id,FirstName='TEST NAME',LastName ='REQUESTOR GIM',email='testreqs@gim.com',Phone = '2123332224',Contact_Type__c='REQUESTOR');
+        insert con1;
+        
+        
+        Profile prof = [SELECT Id FROM Profile WHERE Name = 'Partner User'];
+        User usr1 = new User(
+            Username = 'quoteManager101@verizon.com',
+            FirstName = 'Manager', 
+            LastName = 'Test Manager',
+            ProfileId = prof.Id,
+            PortalRole= 'Manager',
+            Email = 'manager@verizon.com',
+            Alias = 'QuoteM1',
+            CommunityNickname = 'Manager 101',
+            TimeZoneSidKey = 'America/Chicago',
+            LocaleSidKey = 'en_US',
+            ReceivesInfoEmails = false,
+            ReceivesAdminInfoEmails = false,
+            EmailEncodingKey = 'ISO-8859-1',
+            LanguageLocaleKey = 'en_US',
+            contactId=con1.Id,
+            VPS_IsQuotingRole__c = true
+        );
+        insert usr1;
+         //End - Modified/Added by Ashish || New Role changes || 4-2-2022
+      
+        
+        //Account creation
+        Account acc = new Account();
+        acc.name='Sample Account for Test';
+        insert acc;
+        
+       
+         //Start - Modified/Added by Ashish || New Role changes || 4-2-2022
+        //Opportunity creation
+        List<AccountContactRelation> acrList = new List<AccountContactRelation>();
+        AccountContactRelation acr1 = new AccountContactRelation(contactId = con1.Id, accountId = acc.Id);
+        insert acr1;
+        Opportunity opp = new Opportunity(Name = 'Sample Opportunity for Test',stagename='Closed Won',CloseDate=Date.today(),AccountId =acct1.Id);
+        insert opp;
+        //End  - Modified/Added by Ashish || New Role changes || 4-2-2022
+        //Pricebook creation
+        Pricebook2 pb22 = new Pricebook2();
+        pb22.Name='testing';
+        insert pb22;
+        
+        //Product creation
+        Product2 p= new Product2();
+        p.Name='EVC';  
+        p.ProductCode='ETH_ELINE_UNI_EVC';
+        p.IsActive=true; 
+        insert p;
+        
+        //PricebookEntry creation
+        PriceBookEntry pbe= new PriceBookEntry(); 
+        pbe.Product2id=p.id;
+        pbe.Pricebook2id=Test.getStandardPricebookId();
+        pbe.UnitPrice=0;
+        pbe.IsActive=true;
+        pbe.UseStandardPrice = false;
+        pbe.Product2Id=p.id;
+        insert pbe;
+        
+        //Quote creation
+        Quote qte = new Quote();
+        qte.name = 'testQuote';
+        qte.Status = 'Pending';
+        qte.VPS_QuoteFlag__c = false;
+        qte.VPS_IsQuoteSaved__c = false;
+        qte.OpportunityId = opp.Id; 
+        qte.Pricebook2Id= Test.getStandardPricebookId();
+        qte.ExpirationDate = date.today()+30;
+        qte.CLLI_Code__c='111';
+        qte.LCEFlag__c='123';
+        qte.VPS_Product_Type__c = 'Private Line';
+        qte.VPS_IsQuoteSaved__c =true; 
+        insert qte;
+    }
+    static testMethod void testInvokeMethod(){
+        string methodName = 'getQuoteStatusCount'; 
+        Map<String, Object> input = new  Map<String, Object>();
+        Map<String, Object> output = new  Map<String, Object>();
+        Map<String, Object> options = new  Map<String, Object>();
+        test.startTest();
+        VPS_Quote_Status QuoteStatus = new VPS_Quote_Status();
+        QuoteStatus.invokeMethod(methodName, input, output, options);
+        test.stopTest();
+    }
+    static testMethod void testGetQuoteStatusCount(){
+        Map<String, Object> input = new Map<String, Object>();
+        Map<String, Object> output = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+        List<AggregateResult> lst1 = [SELECT count(id) value, VPS_Product_Type__c prod, Status name FROM Quote WHERE status != 'Expired' group by VPS_Product_Type__c , status ]; 
+        test.startTest();
+         //Start - Modified/Added by Ashish || New Role changes || 4-2-2022
+        User testUser=[SELECT Id,name,Contactid FROM User WHERE Username = 'quoteManager101@verizon.com' LIMIT 1]; 
+        system.runAs(testUser){
+             VPS_Quote_Status.getQuoteStatusCount(input, output, options);
+        }
+         //End - Modified/Added by Ashish || New Role changes || 4-2-2022
+       
+        for(AggregateResult Agg : lst1){
+             System.assertEquals( 'Pending', String.valueof(Agg.get('name')));
+            // System.assertEquals( 'Switched Eline', String.valueof(Agg.get('prod')));
+             //System.assertEquals( 'Switched Eline', String.valueof(Agg.get('value')));
+        }
+        test.stopTest();
+    }
+    static testMethod void testGetQuoteStatusCountTest(){
+        Map<String, Object> input = new Map<String, Object>();
+        Map<String, Object> output = new Map<String, Object>();
+        Map<String, Object> options = new Map<String, Object>();
+        List<AggregateResult> lst1 = [SELECT count(id) value, VPS_Product_Type__c prod, Status name FROM Quote WHERE status != 'Expired' group by VPS_Product_Type__c , status ]; 
+        test.startTest();
+        VPS_Quote_Status.getQuoteStatusCount(input, output, options);
+        for(AggregateResult Agg : lst1){
+             System.assertNotEquals( 'Complete', String.valueof(Agg.get('name')));
+             System.assertNotEquals( 'Private Line', String.valueof(Agg.get('prod')));
+             System.assertNotEquals( '2', String.valueof(Agg.get('value')));
+        }
+        test.stopTest();
+    }
+}
