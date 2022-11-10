@@ -1,0 +1,63 @@
+/*for testing gayas*/
+global class VPS_Quote_Status implements vlocity_cmt.VlocityOpenInterface{
+    /*Map<String, Object> output     */
+    public Boolean invokeMethod(String methodName, Map<String, Object> input, Map<String, Object> output, Map<String, Object> options)
+    {
+        if(methodName.equals('getQuoteStatusCount'))
+        {
+            getQuoteStatusCount(input, output, options); 
+        }
+        return true;
+    }
+    public static void  getQuoteStatusCount(Map<String, Object> input, Map<String, Object> output, Map<String, Object> options){
+         //Start - Modified/Added by Ashish || New Role changes || 4-2-2022
+          List<Id> accountHIDs = getAccountHierarchy();
+     	//End 	
+
+       Map<String ,List<String>> quotestatusCounter= new Map<String ,List<String>>();
+       List<VPS_Wrapper_Quote> wraplist = new List<VPS_Wrapper_Quote>();
+        /*List<AggregateResult> lst1 = [SELECT count(id) cnt, ProductName__c prod, Status statusval FROM Quote group by ProductName__c , status];
+        output.put('Result',JSON.serializePretty(lst1));*/
+            
+            List<AggregateResult> lst1 = [SELECT count(Id) value, VPS_Product_Type__c prod, Status name FROM Quote WHERE Status != 'Expired' AND MultiQuote__c = false AND VPS_IsQuoteSaved__c = true AND (OwnerId =:UserInfo.getUserId() OR CreatedById=:UserInfo.getUserId()) AND AccountID IN :accountHIDs group by VPS_Product_Type__c , Status ]; // Added Account Filter by Ashish Feb 4 2022
+            
+            //Use the below line for displaying Quotes based on owner
+            //  List<AggregateResult> lst1 = [SELECT count(id) value, ProductName__c prod, Status name FROM Quote WHERE (OwnerId =:UserInfo.getUserId() OR CreatedById=:UserInfo.getUserId()) group by ProductName__c , status ];   
+                                                        
+            for(AggregateResult agg : lst1) {
+                VPS_Wrapper_Quote wrap = new VPS_Wrapper_Quote();
+                wrap.name = String.valueof(agg.get('name'));
+                wrap.pname = String.valueof(agg.get('prod'));
+                wrap.value = Integer.valueof(agg.get('value'));
+                wraplist.add(wrap);
+            }
+            system.Debug(wraplist);
+            output.put('Result',JSON.deserializeUntyped(JSON.serialize(wraplist))); 
+    }
+    
+    //Start - Modified/Added by Ashish || New Role changes || 4-2-2022
+     /**
+* @description:	method returns the ids of all accouts in the hierarchy with which user is associated
+* @Author:		Ashish
+* @return:		List<Id>
+**/
+    @AuraEnabled
+    public static List<Id> getAccountHierarchy() {
+        List<Id> returnList = new List<Id>();
+        User loggedUser = [SELECT Id, Name, contactId FROM User WHERE Id = :UserInfo.getUserId()];
+        List<AccountContactRelation> accountContactJunction = [SELECT Id, accountId FROM AccountContactRelation WHERE contactid = :loggedUser.contactId AND Account.RecordType.Name = 'Business'];
+        for (AccountContactRelation acc : accountContactJunction) {
+            System.debug('The Id Was: ' + acc.accountId);
+            returnList.add(acc.accountId);
+        }
+        return returnList;
+    }
+       //End - Modified/Added by Ashish || New Role changes || 4-2-2022
+    
+    
+    public class VPS_Wrapper_Quote{
+        public integer value;
+        public String pname;
+        public String name;
+        }
+}
