@@ -1,57 +1,26 @@
-Network Record column data:
-Network Record - KMZ_ES_Number__c  - Fiber Availability and Quoted Route 
-Network Record - KMZ_Circuit_ID__c - As Provisioned 
-
-Related Request column data:
-Related Request - KMZ_Quote_ID__c - Quoted Route
-Related Request - KMZ_Order_Name_PON__c - As Provisioned
-Related Request -blank - Fiber Availability
-
-https://r6intdev-vpsverizon.cs15.force.com/Partner/s/ordersummary?orderId=801e0000002FxwcAAC
-
-get the baseurl and append ordersummary?orderId=801e0000002FxwcAAC
--->load that url inside a popup
-
-https://salesforce.stackexchange.com/questions/180090/want-to-open-custom-url-as-a-pop-up-in-lightning
-check if this helps
-------------------------------------------------
-Location: VPS_Location__c
-Project ID: VPS_Project_Id__c
-Early Acceptance: VPS_Early_Acceptance__c
-Requestor: VPS_Requestor_Contact__c(lookup-contact)
-End Customer: VPS_To_EndCustomer_Name__c
-Implementation: VPS_Implementation_Contact__c (lookup-contact)
-Design: VPS_Design_Contact__c(lookup-contact)
-CCNA:VPS_CCNA__c
-
-Company: --
-Additional Location Details: --
-
-Order Name: Name/ VPS_Order_Name__c
-Requested Due Date: ------ (vlocity_cmt__DueDate__c/VPS_Due_Date__c)
-Product:-----(VPS_Product__c/ProductName__c)
-Alternet Local:---(VPS_Alternate_Contact__c/VPS_To_Alternate_Contact__c)
-Contacts: --- there are many contact fields  are there
----------------------------------YwLUZHOw
-
-You can check this Aura component VPS_OrderWorklist_LightningDatatable
-handleRowAction(Controller)-->cloneOrder(helper)--here they are creating the url and opening in new page but we need to show in popup
-
-https://salesforcekings.blogspot.com/2015/11/how-to-show-image-from-static-resource.html
-
-https://developer.salesforce.com/forums/?id=9060G0000005W9QQAU
-
-https://vpscx--vpscxuat1.my.salesforce.com/secur/frontdoor.jsp?sid=!AR0AQHgSPQCRKcMXttc3OagIXL9UPxX62V.8HPUShn.U7RZ4X4S_.3Edq4BWhB3YqnjGqx4d6Em7A4fG.4x7M0rwelCMjBbH
-
- *Class     :   KMZ_MapSendEmailNotification
- *Test class    :   KMZ_MapSendEmailNotification_Test
- 
- Class:      KMZ_MapRequestCreator
-Test class:     KMZ_MapRequestCreator_Test
-
-https://vpscx--r6intdev.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQKFJ2QptdbeZql0JJWF3zeIxXbJDbtF5txLt30olxG7F5849GyFmIuArDO9W6uUFmCEGipKn7UnBYq8HEHEDhMqqWVgQ
+https://r6intdev-vpsverizon.cs15.force.com/Partner/s/ordermilestoneslwc?id=a2He0000000tZ7JEAU&orderId=801e00000014rsdAAA&product=Switched%20E-Line
 
 
--------------------
-https://vpscx--vpscxsit1.my.salesforce.com/secur/frontdoor.jsp?sid=!AQEAQAZc41Ipe02l1RPXUTPzijtzyrtI6bropkBOKdnCbdKPjmHh8rFCciEBto2yoacI3c7aBmYhgswCZCBuB7LRX4RmCSQU
+TESTQ-MIL-415-PP
+
+LWC component
+-------------
+VpsMilestoneDocumentDetilasLWC
+
+VF Pages:
+----------
+VPS_MilestoneVFZipAttachment
+Vps_MinorMilestonePdfGenerator
+Vps_MinorMilestonePdfGenerator1
+VPS_Full_Milestone_Details_PDF
+
+Apex Classes:
+------------
+VPSOrderMilestoneZipHandler
+VPS_OrderMilestoneResponse
+VPS_OrderMilestoneClass
+VPSCalloutsUtility
+vpsMilestoneDocumentUploadLWCCtrlr
+
+https://vpscx--r6intdev.my.salesforce.com/secur/frontdoor.jsp?sid=!AQMAQIfIMOu68lxU2WloWe4xh0UIKEy_S.D5mdAUosMSpdQb0UXfB4B4BkXntMjdfRnHAP2MpOS0_WyN4Jhv1XiW8iW3cIqW
 
