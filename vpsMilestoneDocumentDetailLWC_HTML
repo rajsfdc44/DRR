@@ -1,0 +1,384 @@
+<!--  *********************************************************************************************************
+Component:       vpsWrlsRFPSitesListLWC
+Project:         Verizon VPS
+User Story:      Wireless Release 5
+Description:     This component has a table of sites requested
+****************************************************************************************************************
+Change Log:
+25-Oct-2019      Benjamin Myshkowec                            Created
+                                                                                                                                 
+****************************************************************************************************************   -->
+<template>
+  <template if:true={showPageSpinner}>
+    <lightning-spinner
+      class="slds-is-fixed"
+      alternative-text="Loading"
+    ></lightning-spinner>
+  </template>
+  <form
+    novalidate
+    role="form"
+    class="slds-grid slds-wrap"
+    style="padding-bottom:25px;"
+  >
+    <div class="slds-grid slds-grid_vertical slds_header">
+      <div class="slds-grid slds-wrap Border">
+        <table class="BorderTable slds-col slds-size_12-of-12 table1">
+          <tbody>
+            <tr class="BorderTable1">
+              <td
+                colspan="4"
+                bgcolor="#000000"
+                class="BorderTable1 textBold textSize2 paddingText "
+                style="font-family:NeueHaasGroteskDisplayBold !important;width:94%;"
+              >
+                <div >
+                  Documents
+                  <span
+                    class="download-all-container cursor-pointer"
+                    style="float:right;"
+                    onclick={handleClickDownloadAll}
+                  >
+                    <p style="padding-right: 10px;">Download All</p>
+                    <img class="imgsize" src={downloadIconWhite} />
+                  </span>
+                </div>
+              </td>
+            </tr>
+
+            <tr class="BorderTable">
+              <td class="summryTdBorder" style="width:100%;">
+                <div class="table-container">
+                  <table class="table-scrollable">
+                    <thead>
+                      <tr>
+                        <template for:each={headers} for:item="col">
+                          <!-- column header -->
+                          <th
+                            key={col.name}
+                            class={col.theadHtmlClass}
+                            data-name={col.name}
+                            onclick={handleClickColumnHeader}
+                          >
+                            <template if:true={col.isCheckbox}>
+                              <!-- checkbox header -->
+                              <span
+                                class="cb-container"
+                                data-name={col.name}
+                                onclick={handleClickColumnHeaderCheckbox}
+                              >
+                                <input type="checkbox" checked={col.checked} />
+                                <img
+                                  src={checkboxOnIcon}
+                                  class="icon checkbox-icon checkbox-icon-checked"
+                                />
+                                <template if:false={col.indeterminate}>
+                                  <img
+                                    src={checkboxOffIcon}
+                                    class="icon checkbox-icon checkbox-icon-not-checked"
+                                  />
+                                </template>
+                                <template if:true={col.indeterminate}>
+                                  <img
+                                    src={checkboxMultiSelectIcon}
+                                    class="icon checkbox-icon checkbox-icon-not-checked"
+                                  />
+                                </template>
+                              </span>
+                              <!-- sort icon -->
+                              <template if:false={col.noSort}>
+                                <img
+                                  src={col.sortIcon}
+                                  class="icon head-icon"
+                                />
+                              </template>
+                            </template>
+                            <template if:false={col.isCheckbox}>
+                              <!-- column header label -->
+                              <span>{col.label}</span>
+                              <!-- sort icon -->
+                              <template if:true={col.showIcon}>
+                                <template if:false={col.noSort}>
+                                  <img
+                                    src={col.sortIcon}
+                                    class="icon head-icon"
+                                  />
+                                </template>
+                              </template>                              
+                              <template if:true={col.hasFilter}>
+                                <div class="dropdown" onclick={stopPropagation}>
+                                  <!-- filter icon -->
+                                  <span
+                                    class="slds-button slds-button_icon filter-icon dropbtn"
+                                    title="Filter"
+                                  >
+                                    <img
+                                      src={col.filterIcon}
+                                      class="icon head-icon"
+                                    />
+                                    <span class="slds-assistive-text"
+                                      >Filter by</span
+                                    >
+                                  </span>
+                                  <div class="dropdown-content">
+                                    <!-- wrap/clip text -->
+                                    <div
+                                      class="filter-option"
+                                      data-name={col.name}
+                                      onclick={handleWrapText}
+                                    >
+                                      <span class="rb-container">
+                                        <input
+                                          type="radio"
+                                          name={col.htmlWrapRadioName}
+                                          checked={col.isWrapText}
+                                        />
+                                        <img
+                                          src={radioOnIcon}
+                                          class="icon radio-icon radio-icon-checked"
+                                        />
+                                        <img
+                                          src={radioOffIcon}
+                                          class="icon radio-icon radio-icon-not-checked"
+                                        />
+                                      </span>
+                                      <span>Wrap Text</span>
+                                    </div>
+                                    <div
+                                      class="filter-option filter-border-bottom"
+                                      data-name={col.name}
+                                      onclick={handleClipText}
+                                    >
+                                      <span class="rb-container">
+                                        <input
+                                          type="radio"
+                                          name={col.htmlWrapRadioName}
+                                          checked={col.isClipText}
+                                        />
+                                        <img
+                                          src={radioOnIcon}
+                                          class="icon radio-icon radio-icon-checked"
+                                        />
+                                        <img
+                                          src={radioOffIcon}
+                                          class="icon radio-icon radio-icon-not-checked"
+                                        />
+                                      </span>
+                                      <span>Clip Text</span>
+                                    </div>
+                                    <!-- end wrap/clip text -->
+                                    <!-- filter options -->
+                                    <template
+                                      for:each={col.filters}
+                                      for:item="filter"
+                                    >
+                                      <div
+                                        key={filter.value}
+                                        data-name={col.name}
+                                        data-filter-value={filter.value}
+                                        class="filter-option "
+                                        onclick={changeFilterSelection}
+                                      >
+                                        <span class="cb-container">
+                                          <input
+                                            type="checkbox"
+                                            checked={filter.checked}
+                                          />
+                                          <img
+                                            src={checkboxOnIcon}
+                                            class="icon checkbox-icon checkbox-icon-checked"
+                                          />
+                                          <template
+                                            if:false={filter.indeterminate}
+                                          >
+                                            <img
+                                              src={checkboxOffIcon}
+                                              class="icon checkbox-icon checkbox-icon-not-checked"
+                                            />
+                                          </template>
+                                          <template
+                                            if:true={filter.indeterminate}
+                                          >
+                                            <img
+                                              src={checkboxMultiSelectIcon}
+                                              class="icon checkbox-icon checkbox-icon-not-checked"
+                                            />
+                                          </template>
+                                        </span>
+                                        <span>{filter.label}</span>
+                                      </div>
+                                    </template>
+                                    <!-- end filter options -->
+                                  </div>
+                                  <!-- end dropdown content -->
+                                </div>
+                                <!-- end dropdown -->
+                              </template>
+                            </template>
+                          </th>
+                        </template>
+                        <template if:true={hasVerticalScrollbar}>
+                          <th class="scroll-spacer"></th>
+                        </template>
+                      </tr>
+                    </thead>
+                    <tbody onscroll={handleTableBodyScroll}>
+                      <template if:true={showTableSpinner}>
+                        <tr>
+                          <td>
+                            <div
+                              class="slds-align_absolute-center"
+                              style="height:4rem"
+                            >
+                              <div
+                                role="status"
+                                class="slds-spinner slds-spinner_medium slds-spinner_inline"
+                                style="transform:translateY(50%);"
+                              >
+                                <span class="slds-assistive-text">Loading</span>
+                                <div class="slds-spinner__dot-a"></div>
+                                <div class="slds-spinner__dot-b"></div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      </template>
+                      <template for:each={filteredData} for:item="row">
+                        <tr key={row.id} class="table-row">
+                          <template for:each={row.cells} for:item="cell">
+                            <td key={cell.columnName} class={cell.htmlClass}>
+                              <template if:true={cell.isCheckbox}>
+                                <!-- checkbox -->
+                                <span
+                                  class="cb-container"
+                                  data-row-id={row.id}
+                                  data-column-name={cell.columnName}
+                                  onclick={handleClickCellCheckbox}
+                                >
+                                  <input type="checkbox" checked={cell.value} />
+                                  <img
+                                    src={checkboxOnIcon}
+                                    class="icon checkbox-icon checkbox-icon-checked"
+                                  />
+                                  <img
+                                    src={checkboxOffIcon}
+                                    class="icon checkbox-icon checkbox-icon-not-checked"
+                                  />
+                                </span>
+                              </template>
+                              <template if:false={cell.isCheckbox}>
+                                <template if:true={cell.isIcon}>
+                                  <template if:true={cell.icon}>
+                                    <img
+                                      data-column-name={cell.columnName}
+                                      data-record-id={row.record.Id}
+                                      onclick={handleClickCell}
+                                      class={cell.labelHtmlClass}
+                                      src={cell.icon}
+                                    />
+                                  </template>
+                                  <template if:false={cell.icon}>
+                                    <div
+                                      data-column-name={cell.columnName}
+                                      data-record-id={row.record.Id}
+                                      onclick={handleClickCell}
+                                      class={cell.labelHtmlClass}
+                                    ></div>
+                                  </template>
+                                </template>
+                                <template if:false={cell.isIcon}>
+                                  <template if:true={cell.hasUrl}>
+                                    <!-- label with link -->
+                                    <slot
+                                      class={cell.labelHtmlClass}
+                                      href={cell.url}
+                                      title={cell.label}
+                                      >{cell.label}</slot
+                                    >
+                                  </template>
+                                  <template if:false={cell.hasUrl}>
+                                    <!-- label -->
+                                    <span
+                                      data-column-name={cell.columnName}
+                                      data-record-id={row.record.Id}
+                                      onclick={handleClickCell}
+                                      class={cell.labelHtmlClass}
+                                      title={cell.label}
+                                    >
+                                      {cell.label}
+                                    </span>
+                                  </template>
+                                </template>
+                              </template>
+                            </td>
+                          </template>
+                        </tr>
+                      </template>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- end table container -->
+                <!--<c-vps-milestone-document-upload-l-w-c record-id={ordId} is-e-u-c-r-exists={isEUCRExists} file-size-limit-bytes={bytes8mb}
+                        file-size-limit-string="8 MB" single>
+                    </c-vps-milestone-document-upload-l-w-c>-->
+               
+                
+                <div style="width: 80%;">
+                    <h2
+                    class="vps-text-bold_16"
+                    style="margin-top: 10px;margin-left: 20px;width:40%;"
+                  >
+                   Document Type:
+                  </h2>
+                    <h3  style="margin-left: 20px;width:40%"> 
+                        Please select document type to upload document.</h3>
+                  <div style="display: inline-flex;width:100%">
+                  <div
+                    class="dropdown-container"
+                    style="width: 30%;margin-top: 35px;margin-left: 20px;"
+                  >
+                      
+                    <c-vps-dropdown-menu-l-w-c
+                      options={sections}
+                      current-option={currentSection}
+                      onselected={handleSectionChange}  style="position: absolute; width: 18%;"
+                    ></c-vps-dropdown-menu-l-w-c>
+                  </div>
+             
+                  <div style="margin-left:10%;width:70%">
+                    <div style="float:right;padding-right: 20%;padding-bottom: 10px;">
+                      <lightning-input
+                        label=""
+                        name="Upload Files"
+                        onchange={handleFilesChange}
+                        type="file"
+                        disabled={invalidFile}
+                        multiple
+                      ></lightning-input>
+                    </div>
+                    <br />
+                    <div class="slds-text-body_small slds-text-color_error"  style="padding-left: 23%;">
+                      {fileName}
+                      <template if:true={showLoadingSpinner}>
+                        <lightning-spinner
+                          alternative-text="Uploading......"
+                          size="medium"
+                        ></lightning-spinner>
+                      </template>
+                    </div>
+                    
+                    <br />
+                  </div>
+                </div>
+                </div>
+                <div class="textSize" style="margin-left: 42%;padding-bottom:50px"> 
+                    All file types accepted.Max files size 8MB
+                  </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </form>
+</template>
