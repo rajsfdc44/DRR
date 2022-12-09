@@ -1,0 +1,1545 @@
+import { LightningElement, track, wire, api } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
+import USER_ID from '@salesforce/user/Id';
+import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import { refreshApex } from '@salesforce/apex';
+import MILESTONE_COMPLETIONDATE from '@salesforce/schema/Order.VPS_milestoneVsCompletionDate__c';
+import COMPLETIONDATE from '@salesforce/schema/Order.VPS_Activation_Cancellation_Date__c';
+import ProductType from '@salesforce/schema/Order.VPS_Product_Type__c';
+import SubmitedDate from '@salesforce/schema/Order.VPS_Date_Submitted__c';
+import getSIPGWDetails from "@salesforce/apex/VPS_getOrderDetailsSIPGW.getSIPGWDetails";
+import { deleteRecord, createRecord, updateRecord, generateRecordInputForCreate, getRecordCreateDefaults } from 'lightning/uiRecordApi';
+import getPreExistingFiles1 from '@salesforce/apex/vpsMilestoneDocumentUploadLWCCtrlr.getPreExistingFiles1';
+import saveFile from '@salesforce/apex/vpsMilestoneDocumentUploadLWCCtrlr.saveFile';
+import getTestResultsPDF from '@salesforce/apex/vpsMilestoneDocumentUploadLWCCtrlr.getTestResultsPDF';
+import deleteTestResultsPDF from '@salesforce/apex/vpsMilestoneDocumentHandler.deleteTestResultsPDF';
+import { getRecordFieldValue, getPrettyDateForDateField, getPrettyDateTime, getPrettyTimeForISOTime, getPrettyCurrencyOptionalDecimal } from './utility';
+
+import VPS_ICONS from '@salesforce/resourceUrl/VPS_Icons';
+
+const DOWNLOAD_ICON_WHITE = VPS_ICONS + '/icons/white/download.svg';
+const DOWNLOAD_ICON_BLACK = VPS_ICONS + '/icons/black/download.svg';
+
+
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+/*import { loadScript } from 'lightning/platformResourceLoader';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import wrapAttachments from '@salesforce/apex/ZipHandler.wrapAttachments';
+import ZIP from '@salesforce/resourceUrl/ZipResource';*/
+
+
+// CSS classes
+const CLASS_COL_WIDTH_X_LARGE = 'col-width-x-large';
+const CLASS_COL_WIDTH_X_SMALL = 'col-width-x-small';
+const CLASS_COL_WIDTH_SMALL = 'col-width-small';
+const CLASS_COL_NO_FLEX = 'col-no-flex';
+const CLASS_CLIP_TEXT = 'text-clip';
+const CLASS_WRAP_TEXT = 'text-wrap';
+const CLASS_NO_SORT = 'no-sort';
+
+// constants used for sorting
+const SORT_ASCENDING = 'ASC';
+const SORT_DESCENDING = 'DESC';
+
+// this is the "name" for the checkbox column
+const CHECKBOX_COLUMN_NAME = 'Selected?';
+
+// constant used for filtering
+const ALL_VALUE = 'All';
+
+// the number of additional rows to load when the user scrolls to the end of the list
+const NUMBER_ROWS_LOAD = 30;
+
+const getRecords = () => {
+    return new Promise((resolve, reject) => {
+        let records = [
+            
+           {
+                Id: '2',
+                DocumentName: 'Complete Milestones',
+                DocumentDateUploaded: '2019-03-17',
+                DocumentUploadedBy: 'Verizon',
+                //FileId: '068c000000127MmAAI'
+            }
+        ];
+        resolve(records);
+    });
+}
+
+// to use navigation in LWC, we need to extend NavigationMixin(LightningElement) instead of LightningElement
+export default class VpsMilestoneDocumentDetailLWC extends NavigationMixin(LightningElement) {    
+   // @track records=[];    
+    @api orderTrackingNum;
+    @api custId;
+    @api ordId;    
+    @api ordName;
+    @api majorMilestoneStatus;
+    @api majorMilestonesLst;
+    @track milsetoneCompletiondate;
+    @track Completiondate;;
+    @track completionDetails = false;//SAMATHA ADDED FOR VBGSE-55
+    @track milestoneResponse = [];
+    @track isFOCExists = false;
+    @api isEUCRExists;
+    @api isDLRExists;
+    @track preExistingFiles = [];
+    @track isLOAExists = false;
+    @track productType;
+    @track DocuList;
+    @track attId;
+    @track attName;
+    @track attIdTR;
+    @track attNameTR;
+    @track sipAttached = false;
+    @track gipc = false;
+    @track docList=[];
+    @track orderid;   
+    @track isPIPExists = false;
+    @track FocDate;
+    @track pIPDate;
+    @track SubmitedDate;
+    @track sections = ['None','EUCR-S'];
+    @track currentSection;
+    @track fileName = '';
+    @track UploadFile = 'Upload File';
+    @track showLoadingSpinner = false;
+    @track isTrue = false;
+    @api engineeringName;
+    @api engineeringEmail;
+    @api hasfocsummary;
+    @api isslinep2p;
+    @api servicePlatform;
+    @api hasCompletionDetails;
+    @api isBuildExists;//SAMATHA ADDED FOR VBGSE110
+    @api completionDetailsdate;
+    @api hasTestResults;//Added by Samatha | Birth Certificate | feb23
+    @api testResultsDate;//Added by Samatha | Birth Certificate | feb23    
+    @track testdocListarr;
+    @api testdocList;//Added by Samatha | Birth Certificate | feb23   
+    selectedRecords;
+    filesUploaded = [];
+    file;
+    fileContents;
+    fileReader;
+    content;
+    MAX_FILE_SIZE = 8000000;
+    retrieveAttachedFiles() {
+        getPreExistingFiles1({ recordId: this.ordId , isEUCRExists: this.isEUCRExists,isDLRExists: this.isDLRExists,isBuildExists: this.isBuildExists})
+        .then(data => {
+        console.log('which one loaded first');
+        console.log('this.productType**'+this.productType);
+            console.log("this data=== ",data);
+            let files = [];
+            let totalSize = 0;
+           
+                this.preExistingFiles = JSON.parse(data);
+               
+                
+                console.log("this.preExistingFiles=== ",JSON.stringify(this.preExistingFiles));
+                this.getData();
+            })
+            .catch(error => {
+                   console.log("error === ",error);
+                if (this.recordId) {
+                    this.error = error;
+                    console.log(error.body.message);  // eslint-disable-line no-console
+                } else {
+                    console.log('Missing recordId');  // eslint-disable-line no-console
+                }
+            });
+        
+        }
+    @wire(getSIPGWDetails, { orderId: "$ordId" })
+    getSIPGWDetails({ error, data }) {
+        if (error) {
+            console.log("error===this.data==SIPGW=>", JSON.stringify(error));
+            //TODO: error handling
+            this.error = error;
+        } else if (data) {
+            this.orderDetails = data;
+            console.log(
+                "Order Details Docu SIPGW:::" + JSON.stringify(this.orderDetails)
+            );
+            if (this.orderDetails!= null) {
+                if (this.orderDetails.orderData.productType === 'SIP Gateway') {
+                    //let sipGateway = this.orderDetails.SIPGateway;
+                    let sipGateway = this.orderDetails['SIP Gateway'];
+                    if(sipGateway.ATT_VOICE_ATTID !== null && sipGateway.ATT_VOICE_ATT_NAME !== null){
+                        this.sipAttached = true;
+                        this.attName = sipGateway.ATT_VOICE_ATT_NAME;
+                        docList.push(this.attId);
+                    }
+                   
+                }
+                if (this.orderDetails.orderData.productType === 'GIPC') {
+                    let gipcdetails = this.orderDetails.GIPC;
+                    if(gipcdetails.ATT_VOICE_ATCHMT_ID_TR !== null && gipcdetails.ATT_VOICE_ATTID!== null){
+                        this.gipc = true;
+                    }
+                    if(gipcdetails.ATT_VOICE_ATCHMT_ID_TR !== null && gipcdetails.ATT_VOICE_ATCHMNT_NAM_TR!== null){
+                    
+                        this.attNameTR = gipcdetails.ATT_VOICE_ATCHMNT_NAM_TR;
+                        console.log('this.attNameTR',this.attNameTR);
+                        
+                    }
+                    if(gipcdetails.ATT_VOICE_ATTID !== null && gipcdetails.ATT_VOICE_ATT_NAME !== null){
+                        this.gipc = true;
+                        this.attName = gipcdetails.ATT_VOICE_ATT_NAME;
+                        console.log('this.attName',this.attName);
+                        
+                    }
+                   
+                }
+                console.log("this.gipc === ",this.gipc);
+                console.log("this.sipAttached === ",this.sipAttached);
+            }
+        }
+    }
+    @wire(getRecord, { recordId: '$ordId', fields: [ MILESTONE_COMPLETIONDATE,ProductType,SubmitedDate,COMPLETIONDATE] })
+    orderRecord({data, error}){
+    if(data){          
+        console.log('this.ordId**'+this.ordId);
+        console.log('this.ordName**'+this.ordName);
+        console.log('this.ordId**'+this.orderTrackingNum);
+        console.log('this.servicePlatformDocumnt**'+this.servicePlatform);
+        this.milsetoneCompletiondate =data.fields.VPS_milestoneVsCompletionDate__c.value;
+        this.Completiondate = data.fields.VPS_Activation_Cancellation_Date__c.value;//SAMATHA ADDED FOR VBGSE-55
+        this.SubmitedDate =JSON.stringify(data.fields.VPS_Date_Submitted__c.value);
+        var sd = this.SubmitedDate;
+        sd = sd.substring(1,11);
+        console.log("sd === ",sd);
+        var sub1 = sd.split('-');       
+        var dd = sub1[2];
+        var mm = sub1[1];        
+        var yy = sub1[0];        
+        this.SubmitedDate = mm+'-'+dd+'-'+yy;             
+        this.productType =JSON.stringify(data.fields.VPS_Product_Type__c.value);
+        console.log("this.milsetoneCompletiondate === ",this.milsetoneCompletiondate);
+        console.log("this.SubmitedDate === ",this.SubmitedDate);
+        console.log("this.Completiondate === ",this.Completiondate);
+        if(this.milsetoneCompletiondate!=null && this.milsetoneCompletiondate!=''){
+            if(this.milsetoneCompletiondate.includes("FOC Summary")){
+                this.isFOCExists = true;  
+                console.log("this.isFOCExists === ",this.isFOCExists);            
+                var arr = this.milsetoneCompletiondate.split(';');
+                console.log("arr === ",arr);
+                var arrsum;
+                var finalarr;
+                if(this.milsetoneCompletiondate.includes("Network Evaluation")){
+                    arrsum = arr[2].split(':');
+                    console.log("arrsum === ",arrsum); 
+                                         
+                }   
+                else{
+                     // arrsum = arr[1].split(':');
+                   if(this.milsetoneCompletiondate.includes("Acceptance")){
+                    arrsum = arr[1].split(':');
+                    }
+                    else{
+                        arrsum = arr[0].split(':');
+                    }
+                    console.log("arrsum === ",arrsum);
+                    
+                }  
+                this.FocDate = arrsum[1];            
+                var focD = this.FocDate;
+                console.log("focD === ",focD);
+                var focD1 = focD.split('/');       
+                var focdd = focD1[1];
+                var focmm = focD1[0];        
+                var focyy = focD1[2];
+                this.FocDate = focmm+'-'+focdd+'-'+focyy; 
+                console.log("FocDate === ",this.FocDate);
+    
+    
+            }            
+            if(this.milsetoneCompletiondate.includes("Provisioning") && this.productType === 'Private IP'){
+                    this.isPIPExists = true;  
+                    console.log("this.isPIPExists === ",this.isPIPExists);
+                    var arr1 = this.milsetoneCompletiondate.split(';');                    
+                    console.log("arr === ",arr1);
+                    var arrsum1;                    
+                    if(this.milsetoneCompletiondate.includes("Network Evaluation")){
+                        if(this.milsetoneCompletiondate.includes("Build")){
+                            arrsum1 = arr[4].split(':');
+                        }
+                        else{
+                            arrsum1 = arr[3].split(':');
+                        }                        
+                                             
+                    }   
+                    else{
+                        if(this.milsetoneCompletiondate.includes("Build")){
+                            arrsum1 = arr[3].split(':');
+                        }
+                        else{
+                            arrsum1 = arr[2].split(':');
+                        }
+                        
+                    }  
+                    this.pIPDate = arrsum1[1];            
+                    var pipD = this.pIPDate;
+                    console.log("pipD === ",pipD);
+                    var pipD1 = pipD.split('/');       
+                    var focdd1 = pipD1[1];
+                    var focmm1= pipD1[0];        
+                    var focyy1 = pipD1[2];
+                    this.pIPDate = focmm1+'-'+focdd1+'-'+focyy1; 
+                    console.log("pIPDate === ",this.pIPDate);
+                }
+           /* else{
+                this.isFOCExists = false;
+            }*/
+        } else if(this.hasfocsummary){
+            this.isFOCExists = true;
+        }
+        if(this.hasCompletionDetails){
+            console.log("this.completionDetails === ",this.completionDetails);
+            this.completionDetails = true;
+        
+        }
+        if(this.hasTestResults){
+            console.log("this.hasTestResults === ",this.hasTestResults);
+            this.testResults = true;
+        
+        }
+        console.log("this.isFOCExists === ",this.isFOCExists);
+        console.log("this.completionDetails === ",this.completionDetails);//SAMATHA ADDED FOR VBGSE-55
+        this.initHeaders().then(() => {
+            //this.retrieveAttachedFiles();
+            this.reloadData();
+            // this.createDummyData();
+        });
+    } else if(error){
+        console.log("error === ",error);
+    }
+}
+
+ 
+    getRecords1(){
+        console.log('called getRecords1*');
+        let records = [];
+        records.push({
+            Id: '1',
+        DocumentName: 'Complete Milestones',
+        DocumentType: 'COMPL',
+        DocumentDateUploaded: this.SubmitedDate,
+        DocumentUploadedBy: 'Verizon',
+        //FileId: '068c000000127MgAAI'
+        });
+        if(this.isFOCExists === true){
+            console.log('called this.flgFOC*');
+            records.push({
+                Id: '2',
+              DocumentName: 'Firm Order Confirmation Summary',
+               DocumentType: 'FOC',
+               DocumentDateUploaded: this.FocDate,
+               DocumentUploadedBy: 'Verizon',
+               //FileId: '068c000000127MgAAI'
+              });
+            
+        }
+        
+        //SAMATHA ADDED FOR VBGSE-55
+        if(this.completionDetails === true){
+            console.log('called this.completionDetails*');
+            records.push({
+                Id: '3',
+              DocumentName: 'Completion Details',
+               DocumentType: 'Completion',
+               DocumentDateUploaded: this.completionDetailsdate,
+               DocumentUploadedBy: 'Verizon',
+               //FileId: '068c000000127MgAAI'
+              });
+            
+        } 
+              
+		if(this.isPIPExists === 'true'){
+            records.push({
+                Id: '4',
+              DocumentName: 'PIP Configurations',
+               DocumentType: 'PIP',
+               DocumentDateUploaded: this.pIPDate,
+               DocumentUploadedBy: 'Verizon',
+               //FileId: '068c000000127MgAAI'
+              });
+        }        
+        console.log('getRecords1*',records);
+        if(this.preExistingFiles!=null && this.preExistingFiles!=''){
+            var contentid;
+            //for (i=0;i<this.preExistingFiles.length;i++) {
+                for (let f of this.preExistingFiles) {
+                records.push({
+                    Id: f.fileId,
+                DocumentName: f.docName,
+                DocumentType: f.documentType,
+                DocumentDateUploaded:  f.dateUploaded,
+                DocumentUploadedBy: f.uploadedBy                
+                });
+                this.contentid+=','+f.fileId;
+            }
+            this.contentid = this.contentid.substring(10);
+            console.log('contentid*',this.contentid);
+        }     
+         //Added by Samatha | Birth Certificate | feb23
+         console.log('called this.testResults*',this.testdocList);
+         if(this.testdocList!='' && this.testdocList!=null && this.testdocList!=undefined){
+         this.testdocListarr = JSON.parse(this.testdocList).join(',');
+         console.log('testdocListarr*',this.testdocListarr.length);}
+         if(this.testdocListarr && this.testdocListarr.length !== 0){
+            console.log('called this.testResults*',this.testdocList);            
+             console.log('testdocListarr*',this.testdocListarr);
+             var doclistarr;
+             var docidarr;
+             doclistarr = this.testdocListarr.split(',');
+             console.log('doclistarr*',doclistarr);
+             for (var i = 0; i < doclistarr.length; i++) {
+                docidarr = doclistarr[i].split('_');
+                console.log('docid*',docidarr[0]);
+                console.log('serviceorder*',docidarr[1]);
+                records.push({
+                    Id: docidarr[0],
+                  DocumentName: 'Y.1564TestResults'+'_'+docidarr[1],
+                   DocumentType: 'COMPL',
+                   DocumentDateUploaded: this.testResultsDate,
+                   DocumentUploadedBy: 'Verizon',  
+                  // DocumntId: docidarr[0],         
+                  });
+            }     
+        }  
+        console.log('getRecords1*',records);
+        this.showTableSpinner = false;
+
+        //return records;
+        if (records.length === 0) {
+            // stop loading more records if record ID is valid and no records returned
+            this.allRecordsLoaded = true;
+        } else {
+            console.log('else of getRecords1*',records);
+            this.processData(records);
+        }
+        this.loadingData = false;
+    }    
+  
+    
+    @track headers = [
+        {
+            label: 'Name',
+            name: 'Name',
+            fieldApiName: 'DocumentName',
+            showIcon: true
+        },
+        {
+            label: 'Document Type',
+            name: 'Document Type',
+            fieldApiName: 'DocumentType',
+            showIcon: true
+        },
+        {
+            label: 'Date Uploaded',
+            name: 'Date Uploaded',
+            fieldApiName: 'DocumentDateUploaded',
+            isDate: false,
+            showIcon: true
+        },
+        {
+            label: 'Uploaded By',
+            name: 'Uploaded By',
+            fieldApiName: 'DocumentUploadedBy',
+            showIcon: true
+        },
+        {
+            label: 'Download',
+            name: 'Download',
+            defaultIcon: DOWNLOAD_ICON_BLACK,
+            showIcon: false,
+            labelHtmlClass: 'cursor-pointer',
+            onclick: (event, recordId) => {
+                let row = this.getRow(recordId);
+                console.log('recordId : ',recordId);
+                this.downloadFile(row.record);
+            }
+        }
+    ];
+    @track filteredData = [];
+    allData = [];
+    @track showTableSpinner = false;
+    @track showPageSpinner = false;
+    // used for sorting
+    sortBy = 'Name';
+    sortDirection = SORT_ASCENDING;
+
+    // used for infinite loading of data
+    numberOfRowsToSkip = 0;
+    allRecordsLoaded = false;
+    loadingData = true;
+    loadMoreData = false;
+
+    sortNormalIcon = VPS_ICONS + '/icons/black/sort/normal.svg';
+    sortAscendingIcon = VPS_ICONS + '/icons/black/sort/ascend.svg';
+    sortDescendingIcon = VPS_ICONS + '/icons/black/sort/descend.svg';
+    filterIcon = VPS_ICONS + '/icons/black/filter.svg';
+    filterActiveIcon = VPS_ICONS + '/icons/black/filter/active.svg';
+    radioOffIcon = VPS_ICONS + '/icons/black/radio/off.svg';
+    radioOnIcon = VPS_ICONS + '/icons/black/radio/on.svg';
+    checkboxOffIcon = VPS_ICONS + '/icons/black/check/off.svg';
+    checkboxOnIcon = VPS_ICONS + '/icons/black/check/on.svg';
+    checkboxMultiSelectIcon = VPS_ICONS + '/icons/black/checkbox/multi-select.svg';
+    closeIcon = VPS_ICONS + '/icons/close.svg';
+    downloadIconBlack = DOWNLOAD_ICON_BLACK;
+    downloadIconWhite = DOWNLOAD_ICON_WHITE;
+    infoIcon = VPS_ICONS + "/icons/black/information.svg";
+
+    bytes8mb = 1024 * 1024 * 8;
+    
+    getFilters(column) {
+        let existingFilters = new Map();
+        if (column.filters) {
+            for (let f of column.filters) {
+                existingFilters.set(f.value, f.checked);
+            }
+        }
+        let filters = [];
+        let allFilter;
+        if (column.showFilterAll) {
+            let checked = existingFilters.get(ALL_VALUE);
+            if (typeof checked !== 'boolean') {
+                checked = true;
+            }
+            allFilter = { label: 'All', value: ALL_VALUE, checked: checked };
+            filters.push(allFilter);
+        }
+        if (!this.allData || this.allData.length === 0) {
+            return filters;
+        }
+        let cellMap = new Map();
+        for (let row of this.allData) {
+            let cell = this.getCellInRow(row, column.name);
+            cellMap.set(cell.value, cell.label);
+        }
+        for (let key of cellMap.keys()) {
+            let checked = existingFilters.get(key);
+            if (checked !== true && checked !== false) {
+                checked = column.showFilterAll ? false : true;
+            }
+            let f = {
+                label: cellMap.get(key),
+                value: key,
+                checked: checked
+            };
+            filters.push(f);
+        }
+
+        return filters;
+    }
+
+    reInitHeaders() {
+        this.headers.isInitialized = false;
+        this.initHeaders();
+    }
+
+    initHeaders() {
+        // eslint-disable-next-line no-unused-vars
+        return new Promise((resolve, reject) => {
+            // only do init if not initialized
+            if (!this.headers.isInitialized) {
+                // set init done
+                this.headers.isInitialized = true;
+                // for urls
+                let numUrlsToCheck = this.headers.length;
+                let urlCheckThen = () => {
+                    numUrlsToCheck -= 1;
+                    if (numUrlsToCheck === 0) {
+                        resolve();
+                    }
+                };
+                // init headers
+                for (let col of this.headers) {
+                    // wrap/clip radio input name
+                    col.htmlWrapRadioName = 'radioWrap' + col.name;
+                    // wrap/clip text
+                    if (typeof col.isWrapText !== 'boolean' || typeof col.isClipText !== 'boolean') {
+                        col.isWrapText = false;
+                        col.isClipText = true;
+                    }
+                    // html class
+                    if (col.columnHtmlClass) {
+                        col.theadHtmlClass = this.joinHtmlClasses(col.theadHtmlClass, col.columnHtmlClass);
+                        col.tbodyHtmlClass = this.joinHtmlClasses(col.tbodyHtmlClass, col.columnHtmlClass);
+                    }
+                    // no sort
+                    if (col.noSort) {
+                        col.theadHtmlClass = this.joinHtmlClasses(col.theadHtmlClass, CLASS_NO_SORT);
+                    }
+                    // wrap/clip text
+                    col.tbodyHtmlClass = this.joinHtmlClasses(col.tbodyHtmlClass, CLASS_CLIP_TEXT);
+                    // checkbox
+                    if (col.isCheckbox && (typeof col.checked !== 'boolean' || typeof col.indeterminate !== 'boolean' || !Number.isInteger(col.numChecked))) {
+                        col.checked = false;
+                        col.indeterminate = false;
+                        col.numChecked = 0;
+                    }
+                    // url
+                    this.getColumnPageUrl(col).then(urlCheckThen).catch(urlCheckThen);
+                }
+                // dynamic filters
+                this.initFilters();
+                // header icons
+                this.updateHeaderIcons();
+            }
+        });
+    }
+
+    initFilters() {
+        for (let col of this.headers) {
+            if (col.dynamicFilters) {
+                col.filters = this.getFilters(col);
+            }
+            if (col.hasFilter) {
+                this.setIsFilterActive(col);
+            }
+        }
+    }
+
+    updateHeaderIcons() {
+        // update header icons
+        for (let col of this.headers) {
+            // filter icon
+            if (col.hasFilter) {
+                col.filterIcon = col.isFilterActive ? this.filterActiveIcon : this.filterIcon;
+            }
+            // sort icon
+            if (col.name === this.sortBy) {
+                if (this.sortDirection === SORT_ASCENDING) {
+                    col.sortIcon = this.sortAscendingIcon;
+                } else {
+                    col.sortIcon = this.sortDescendingIcon;
+                }
+            } else {
+                col.sortIcon = this.sortNormalIcon;
+            }
+        }
+    }
+
+    get recordId() {
+        let url = new URL(window.location);
+        return url.searchParams.get('id');
+    }
+
+    getColumnPageUrl(column) {
+        // eslint-disable-next-line no-unused-vars
+        return new Promise((resolve, reject) => {
+            if (!column.url && column.urlPageName) {
+                this.getPageNameUrl(column.urlPageName)
+                    .then(url => {
+                        column.url = url;
+                        resolve();
+                    })
+                    .catch((message) => {
+                        // eslint-disable-next-line no-console
+                        console.log('Error while getting url for ' + column.name + ' : ' + message);
+                        reject();
+                    });
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    getPageNameUrl(pageName) {
+        // eslint-disable-next-line no-unused-vars
+        return new Promise((resolve, reject) => {
+            if (!pageName) {
+                reject('No pageName');
+            }
+            // get page url
+            let pageRef = {
+                type: "comm__namedPage",
+                attributes: {
+                    pageName: pageName
+                }
+            };
+            this[NavigationMixin.GenerateUrl](pageRef)
+                .then(url => {
+                    // eslint-disable-next-line no-script-url
+                    if (url == null || url.startsWith('javascript:')) {
+                        // reject('Invalid url (pageName=' + pageName + '): ' + url);
+
+                        // eslint-disable-next-line no-console
+                        console.log('Invalid url (pageName=' + pageName + '): ' + url);
+                        // use a fallback method for getting the url
+                        // this may break in the future
+                        // get current url
+                        let currentUrl = window.location.href;
+                        // split the current url
+                        let urlArray = currentUrl.split('/');
+                        // remove the last part of the url (this should be the current page name and its query parameters)
+                        urlArray.pop();
+                        // add the column page name to the url
+                        urlArray.push(pageName);
+                        // join the url array to a string
+                        let pageUrl = urlArray.join('/');
+                        resolve(pageUrl);
+                    }
+                    resolve(url);
+                });
+        });
+    }
+
+    // initialize component
+    connectedCallback() {
+        this.currentSection = 'None';
+        
+    }
+    handleSectionChange(event) {
+        // this.toggleOptions();
+        this.currentSection = event.detail;
+        this.fileName ='';
+        console.log('notifications for: ', this.currentSection);        
+    }
+    // getting file 
+    handleFilesChange(event) {
+        if(event.target.files.length > 0) {
+            this.filesUploaded = event.target.files;
+            this.fileName = event.target.files[0].name;
+            this.uploadHelper();
+        }
+    }
+    uploadHelper() {
+        this.file = this.filesUploaded[0];
+        console.log('File size',this.file.size );
+       if (this.file.size > this.MAX_FILE_SIZE) {
+        this.fileName = 'Upload Failed. File Size is too long';
+            window.console.log('File Size is too long');
+            return ;
+        }
+        this.showLoadingSpinner = true;
+        // create a FileReader object 
+        this.fileReader= new FileReader();
+        // set onload function of FileReader object  
+        this.fileReader.onloadend = (() => {
+            this.fileContents = this.fileReader.result;
+            let base64 = 'base64,';
+            this.content = this.fileContents.indexOf(base64) + base64.length;
+            this.fileContents = this.fileContents.substring(this.content);
+            
+            // call the uploadProcess method 
+            this.saveToFile();
+        });
+    
+        this.fileReader.readAsDataURL(this.file);
+    }
+     // Calling apex class to insert the file
+     saveToFile() {
+        saveFile({ idParent: this.ordId, strFileName: this.file.name, base64Data: encodeURIComponent(this.fileContents), documentType: this.currentSection, engineeringName: this.engineeringName,
+           engineeringEmail:this.engineeringEmail})
+        .then(result => {
+            window.console.log('result ====> ' +result);
+            // refreshing the datatable
+            //this.getRelatedFiles();
+
+            this.fileName = this.fileName + ' - Uploaded Successfully';
+            this.UploadFile = 'File Uploaded Successfully';
+            this.isTrue = true;
+            this.currentSection = 'None';
+            this.reloadData();
+            this.showLoadingSpinner = false;
+        })
+        .catch(error => {
+            // Showing errors if any while inserting the files
+            window.console.log(error);            
+        });
+    }
+    reloadData() {
+        this.numberOfRowsToSkip = 0;
+        this.allRecordsLoaded = false;
+        this.loadingData = true;
+        this.loadMoreData = false; 
+        this.retrieveAttachedFiles();
+        
+    }
+
+    getData() {
+       
+        this.showTableSpinner = true;
+        console.log('entered into getData: ');      
+            this.getRecords1();            
+    }
+
+    createDummyData() {
+        // create dummy data
+        let records = [];
+        for (let i = 1; i <= 15; i++) {
+            let record = { Id: '' + i };
+            for (let head of this.headers) {
+                if (head.fieldApiName) {
+                    let fieldApiName = head.fieldApiName;
+                    let value = head.label + ' ' + i;
+                    if (head.isDateTime) {
+                        let d = new Date();
+                        value = d.toLocaleString({ hour12: false, year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    }
+                    if (head.isDate) {
+                        let d = new Date();
+                        value = d.toLocaleString({ hour12: false, year: '2-digit', month: '2-digit', day: '2-digit' });
+                    }
+                    if (head.isTime) {
+                        let d = new Date();
+                        value = d.toLocaleString({ hour12: false, hour: '2-digit', minute: '2-digit' });
+                    }
+                    if (head.isCheckbox) {
+                        value = false;
+                    }
+                    let splitfieldApiName = fieldApiName.split('.');
+                    console.log("I got the response", splitfieldApiName);
+                    if (splitfieldApiName.length > 1) {
+                        fieldApiName = splitfieldApiName[0];
+                        let valueObj = record[fieldApiName];
+                        if (!valueObj) {
+                            valueObj = {};
+                        }
+                        for (let fi = 1; fi < splitfieldApiName.length; fi++) {
+                            let f = splitfieldApiName[fi];
+                            if (fi === splitfieldApiName.length - 1) {
+                                valueObj[f] = value;
+                            } else {
+                                if (!valueObj[f]) {
+                                    valueObj[f] = {};
+                                }
+                            }
+                        }
+                        value = valueObj;
+                    }
+                    record[fieldApiName] = value;
+                }
+            }
+            records.push(record);
+        }
+        this.processData(records);
+    }
+
+    processData(recordList) {
+        if (!recordList || recordList.length === 0) {
+            console.log('No Dao Data');  // eslint-disable-line no-console
+            return;
+        }
+        let newData = [];
+        if (this.loadMoreData) {
+            newData = this.allData;
+        }
+        for (let record of recordList) {
+            let row = {
+                id: record.Id,
+                record: record,
+                cells: []
+            };
+            for (let head of this.headers) {
+                let url = this.getUrl(head, record);
+                let cellValue = getRecordFieldValue(record, head.fieldApiName);
+                let cellLabel = cellValue;
+                let icon = null;
+
+                if (head.isCheckbox) {
+                    cellValue = false;
+                    cellLabel = cellValue;
+                }
+
+                if (typeof cellValue !== 'undefined' && cellValue !== null) {
+                    if (head.isDate) {
+                        cellLabel = getPrettyDateForDateField(cellValue);
+                    }
+
+                    if (head.isDateTime) {
+                        cellLabel = getPrettyDateTime(cellValue);
+                    }
+
+                    if (head.isTime) {
+                        cellLabel = getPrettyTimeForISOTime(cellValue);
+                    }
+
+                    if (head.isCurrency) {
+                        cellLabel = getPrettyCurrencyOptionalDecimal(cellValue);
+                    }
+                }
+
+                // get icon based on cell value
+                if (head.iconMap) {
+                    icon = head.iconMap[cellValue];
+                }
+
+                // get default icon if no icon for cell value
+                // use double equals to also check undefined
+                if (icon == null && head.defaultIcon) {
+                    icon = head.defaultIcon;
+                }
+
+                if (head.showBlankAsDash && (typeof cellLabel === 'undefined' || cellLabel === null || cellLabel === '')) {
+                    cellLabel = '-';
+                }
+                var hasUrl;
+                if(head.name === 'Name'){
+                    hasUrl= true; 
+                }
+                else{
+                    hasUrl= false;
+                } 
+                let cell = {
+                    columnName: head.name,
+                    htmlClass: head.tbodyHtmlClass,
+                    labelHtmlClass: head.labelHtmlClass,
+                    label: cellLabel,
+                    value: cellValue,
+                    url: url,
+                    hasUrl: hasUrl,                                      
+                    isCheckbox: head.isCheckbox,
+                    isIcon: head.iconMap || head.defaultIcon ? true : false,
+                    icon: icon
+                };
+
+                row.cells.push(cell);
+            }
+            newData.push(row);
+        }
+        this.allData = newData;
+        this.reInitHeaders();        
+        this.sortAndFilterData();       
+    }
+
+    getUrl(column, record) {
+        let url = null;
+        if (column.url) {
+            url = column.url;
+            // url params
+            if (column.urlParams && column.urlParams.length > 0) {
+                let queryString = '';
+                for (let params of column.urlParams) {
+                    let value;
+                    // get value
+                    if (params.value) {
+                        value = params.value;
+                    } else if (params.fieldApiName) {
+                        value = record[params.fieldApiName];
+                    }
+                    // add to query string
+                    if (params.key && value) {
+                        queryString += queryString.length > 0 ? '&' : '?';
+                        let encodedKey = encodeURIComponent(params.key);
+                        let encodedValue = encodeURIComponent(value);
+                        queryString += encodedKey + '=' + encodedValue;
+                    }
+                }
+                url += queryString;
+            }
+        } else if (column.urlPageName) {
+            // eslint-disable-next-line no-console
+            console.log('Missing URL for column ' + column.label + ' with pageName ' + column.urlPageName);
+        }
+        return url;
+    }
+    get invalidFile() {
+        if (this.currentSection === 'None') {
+            return true;
+        }
+       
+        return false;
+    }
+    handleTableBodyScroll(event) {
+       
+    }
+
+    handleClickColumnHeader(event) {
+        let element = event.currentTarget;
+        let name = element.dataset.name;
+        let col = this.getTableHeaderColumn(name);
+        if (!col.noSort) {
+            // sort            
+            if(name!='Download'){
+                this.sortDataByColumn(name);
+            }            
+        }
+    }
+
+    handleClickColumnHeaderCheckbox(event) {
+        let element = event.currentTarget;
+        let name = element.dataset.name;
+        let col = this.getTableHeaderColumn(name);
+        if (col.checked || col.indeterminate) {
+            col.checked = false;
+            col.indeterminate = false;
+            col.numChecked = 0;
+        } else {
+            // ignore hidden rows
+            if (this.allData.length === this.filteredData.length) {
+                col.checked = true;
+                col.indeterminate = false;
+            } else {
+                col.checked = false;
+                col.indeterminate = true;
+            }
+            col.numChecked = this.allData.length;
+        }
+        // make checkboxes in tbody match
+        for (let row of this.allData) {
+            let cell = this.getCellInRow(row, col.name);
+            let checked = col.checked || col.indeterminate;
+            // un-check hidden rows
+            if (!row.isVisible) {
+                checked = false;
+                col.numChecked -= 1;
+            }
+            cell.value = checked;
+            cell.label = checked;
+        }
+        this.sortAndFilterData();
+    }
+
+    handleClickCellCheckbox(event) {
+        let element = event.currentTarget;
+        let columnName = element.dataset.columnName;
+        let rowId = element.dataset.rowId;
+        let cell = this.getCell(rowId, columnName);
+        cell.value = !cell.value;
+        cell.label = cell.value;
+        // update checkbox in thead
+        let col = this.getTableHeaderColumn(columnName);
+        if (cell.value) {
+            col.numChecked += 1;
+        } else {
+            col.numChecked -= 1;
+        }
+        let numRows = this.allData.length;
+        col.checked = col.numChecked === numRows;
+        col.indeterminate = col.numChecked > 0 && numRows !== col.numChecked;
+        this.sortAndFilterData();
+    }
+
+    isCheckedSitesEligible(checkEligible) {
+        let hasEligibleSite = false;
+        let hasNonEligibleSite = false;
+        for (let i = 0; i < this.allData.length; ++i) {
+            let row = this.allData[i];
+            let site = row.record;
+            let cell = this.getCellInRow(row, CHECKBOX_COLUMN_NAME);
+            let isRowChecked = cell.value;
+            let isEligible = checkEligible(site, isRowChecked);
+            if (isRowChecked && isEligible) {
+                hasEligibleSite = true;
+            } else if (isRowChecked && !isEligible) {
+                hasNonEligibleSite = true;
+            }
+        }
+        return hasEligibleSite && !hasNonEligibleSite;
+    }
+
+    handleClickCell(event) {
+        let recordId = event.currentTarget.dataset.recordId;
+        let columnName = event.currentTarget.dataset.columnName;
+        let column = this.headers.find(head => head.name === columnName);
+        column.onclick(event, recordId);
+        console.log('recordId : ',recordId);
+    }
+
+    getCell(rowId, columnName) {
+        let row = this.getRow(rowId)
+        return this.getCellInRow(row, columnName);
+    }
+
+    getRow(rowId) {
+        return this.allData.find(row => row.id === rowId);
+    }
+
+    getCellInRow(row, columnName) {
+        return row.cells.find(cell => cell.columnName === columnName);
+    }
+
+    getTableHeaderColumn(columnName) {
+        return this.headers.find(head => head.name === columnName);
+    }
+
+    sortDataByColumn(columnName) {        
+        // flip the sorting direction if we are sorting by the same field again
+        if (this.sortBy === columnName) {
+            if (this.sortDirection === SORT_ASCENDING) {
+                this.sortDirection = SORT_DESCENDING;
+            }
+            else {
+                this.sortDirection = SORT_ASCENDING;
+            }
+        } else {
+            this.sortDirection = SORT_ASCENDING;
+            this.sortBy = columnName;
+        }
+
+        this.filteredData = this.sortArrayNoUpdate(this.filteredData);
+        this.updateHeaderIcons();
+    }
+
+    sortArrayNoUpdate(arr) {
+        if (!this.sortBy) {
+            return arr;
+        }
+        let reverse = this.sortDirection !== SORT_ASCENDING ? -1 : 1;
+        let key = row => {
+            let cell = this.getCellInRow(row, this.sortBy);
+            return cell.value;
+        };
+
+        // Make a copy of the array so we don't modify the source array when sorting
+        // this is a shallow copy so changes to elements in the array will change the source array
+        let data = Object.assign([], arr);
+
+        // Array.sort sorts in place. We want to avoid modifying the array
+        return data.sort((a, b) => {
+            // get the field we are sorting by for the objects being compared
+            let A = key(a);
+            let B = key(b);
+            // assume values are the same unless we find otherwise
+            let sortValue = 0;
+            // sort null last
+            if (A == null) {
+                sortValue = 1;
+            } else if (B == null) {
+                sortValue = -1;
+            }
+            // compare values
+            else if (A < B) {
+                sortValue = -1;
+            } else if (A > B) {
+                sortValue = 1;
+            }
+            // reverse the sort order if we are sorting descending
+            sortValue *= reverse;
+            // return a negative value to sort 'a' first, or a positive value to sort 'b' first
+            return sortValue;
+        });
+    }
+
+    sortAndFilterData() {
+        // get filters
+        let filterColumns = [];
+        for (let col of this.headers) {
+            if (col.filters) {
+                filterColumns.push(col);
+            }
+        }
+        // filter data
+        let filteredData = this.allData.filter(row => {
+            let matchesFilter = true;
+            for (let col of filterColumns) {
+                let cellValue = this.getCellInRow(row, col.name).value;
+                matchesFilter &= this.sortAndFilterDataHelper(col.filters, cellValue, col.showFilterAll);
+            }
+
+            row.isVisible = matchesFilter;
+            return matchesFilter;
+        });
+
+        // sort data
+        filteredData = this.sortArrayNoUpdate(filteredData);
+
+        // update the data list
+        this.filteredData = filteredData;
+        this.updateHeaderIcons();
+    }
+
+    sortAndFilterDataHelper(filters, compareValue, showFilterAll) {
+        let compareOption = filters.find(f => f.value === compareValue);
+        let showAll = false;
+        if (showFilterAll) {
+            let allOption = filters.find(f => f.value === ALL_VALUE);
+            showAll = allOption.checked;
+        }
+        let matchesValue = showAll || (compareOption && compareOption.checked);
+        return matchesValue;
+    }
+
+    changeFilterSelection(event) {
+        // get the changed filter
+        let option = event.currentTarget;
+        let columnName = option.dataset.name;
+        let filterValue = option.dataset.filterValue;
+        this.changeFilterSelectionHelper(columnName, filterValue);
+
+        // update the data list
+        this.sortAndFilterData();
+    }
+
+    changeFilterSelectionHelper(columnName, filterValue) {
+        let column = this.getTableHeaderColumn(columnName);
+        let currentFilter = column.filters.find(f => f.value === filterValue);
+        currentFilter.checked = !currentFilter.checked;        
+        if (column.showFilterAll) {
+            // handle All option
+            if (currentFilter.value === ALL_VALUE) {
+                /* if All was selected, un-select all other options */
+                currentFilter.indeterminate = false;
+                if (currentFilter.checked) {
+                    for (let f of column.filters) {
+                        if (f.value !== ALL_VALUE) {
+                            f.checked = false;
+                        }
+                    }
+                }
+            } else {
+                /* if any option other than All was selected, un-select All option
+                   if all other options are un-selected, select All option */
+                let allOption = column.filters.find(f => f.value === ALL_VALUE);
+                let numChecked = 0;
+                // don't count all option
+                let numOptions = column.filters.length - 1;
+                for (let f of column.filters) {
+                    if (f.value !== ALL_VALUE && f.checked) {
+                        numChecked += 1;
+                    }
+                }
+                allOption.checked = numChecked === 0 || numChecked === numOptions;
+                allOption.indeterminate = numChecked > 0 && numChecked !== numOptions;
+            }
+        }
+        // update isFilterActive
+        this.setIsFilterActive(column);
+    }
+
+    setIsFilterActive(column) {
+        let numChecked = 0;
+        let numOptions = column.filters.length;
+        if (column.showFilterAll) {
+            let allOption = column.filters.find(f => f.value === ALL_VALUE);
+            column.isFilterActive = !allOption.checked;
+        } else {
+            for (let f of column.filters) {
+                if (f.checked) {
+                    numChecked += 1;
+                }
+            }
+            column.isFilterActive = numChecked < numOptions;
+        }
+    }
+
+    stopPropagation(event) {
+        // stop propagation with event.stopPropagation() so the click event does not propagate up to window
+        event.stopPropagation();
+    }
+
+    joinHtmlClasses(htmlClass1, htmlClass2) {
+        let htmlClass1List = [];
+        let htmlClass2List = [];
+        if (htmlClass1) {
+            htmlClass1List = htmlClass1.split(' ');
+        }
+        if (htmlClass2) {
+            htmlClass2List = htmlClass2.split(' ');
+        }
+        // add all classes not already in class list
+        for (let c of htmlClass2List) {
+            if (!htmlClass1List.includes(c)) {
+                htmlClass1List.push(c);
+            }
+        }
+        return htmlClass1List.join(' ');
+    }
+
+    replaceCellHtmlClass(columnName, addClass, removeClass) {
+        for (let row of this.allData) {
+            row.cells.some(cell => {
+                if (cell.columnName === columnName) {
+                    let htmlClassList = cell.htmlClass.split(' ');
+                    // get the index of the class to remove
+                    let removeIndex = htmlClassList.indexOf(removeClass);
+                    // replace the class to remove with the class to add
+                    htmlClassList[removeIndex] = addClass;
+                    // update the html class string
+                    cell.htmlClass = htmlClassList.join(' ');
+                    return true;
+                }
+                return false;
+            });
+        }
+        this.sortAndFilterData();
+    }
+
+    handleWrapText(event) {
+        let element = event.currentTarget;
+        let name = element.dataset.name;
+        let col = this.getTableHeaderColumn(name);
+        col.isWrapText = true;
+        col.isClipText = false;
+        this.replaceCellHtmlClass(name, CLASS_WRAP_TEXT, CLASS_CLIP_TEXT);
+    }
+
+    handleClipText(event) {
+        let element = event.currentTarget;
+        let name = element.dataset.name;
+        let col = this.getTableHeaderColumn(name);
+        col.isWrapText = false;
+        col.isClipText = true;
+        this.replaceCellHtmlClass(name, CLASS_CLIP_TEXT, CLASS_WRAP_TEXT);
+    }
+
+    get hasVerticalScrollbar() {
+        return true;
+        // let scrollElement = this.template.querySelector('table.table-scrollable tbody');
+        // if (!scrollElement) {
+        //     // page is still rendering
+        //     return false;
+        // }
+        // return scrollElement.scrollHeight > scrollElement.clientHeight;
+    }
+
+    get hasHorizontalScrollbar() {
+        let scrollElement = this.template.querySelector('table.table-scrollable tbody');
+        return scrollElement.scrollWidth > scrollElement.clientWidth;
+    }
+
+    processCheckedRows() {
+        let checkCol = this.getTableHeaderColumn(CHECKBOX_COLUMN_NAME);
+        let checkedRecords = [];
+        if (checkCol.checked || checkCol.indeterminate) {
+            // process checked rows
+            let index = 0;
+            while (index < this.allData.length) {
+                let row = this.allData[index];
+                if (!row.isVisible) {
+                    // skip hidden rows
+                    index += 1;
+                    continue;
+                }
+                // skip evaluating state of checkbox in row if all checkboxes are checked
+                let isChecked = checkCol.checked;
+                if (!isChecked) {
+                    let cell = this.getCellInRow(row, CHECKBOX_COLUMN_NAME);
+                    isChecked = cell.value;
+                }
+                if (isChecked) {
+                    checkedRecords.push(row.record);
+                }
+                index += 1;
+            }
+
+            this.sortAndFilterData();
+            this.initFilters();
+        }
+    }
+
+    getFileUrl(contentVersionId) {
+        if (contentVersionId == null || contentVersionId === '') {
+            return null;
+        }
+        let urlString = window.location.href;
+        let baseUrl = urlString.substring(0, urlString.indexOf('/s'));
+        if (baseUrl === '') {
+            baseUrl = window.location.origin;
+        }
+        let url = baseUrl + '/sfc/servlet.shepherd/version/download/' + contentVersionId;
+        return url;
+    }
+
+    downloadFile(record) {
+        var frameUrl;
+        console.log('record Data : ',JSON.stringify(record));
+        console.log('samatha Data : ',JSON.stringify(record));
+        console.log('clicked...');
+        var pathElements = window.location.pathname.split('/');
+        console.log(pathElements);
+        
+        if(pathElements.indexOf("Partner") != -1) {
+            frameUrl = window.location.origin + '/' + pathElements[1];
+        } else {
+            frameUrl = window.location.origin;
+        }          
+        console.log('frameURL::::', frameUrl);
+        var orderTrackingNum = this.orderTrackingNum;//("v.orderId");//[SWARS]
+        var customerId = this.custId;//'ATX';
+        var isslinep2p = this.isslinep2p;
+        var milestoneStatus = this.majorMilestoneStatus;//'Build';
+        var milestonesLst = this.majorMilestonesLst;
+        console.log('THE BUTTON HAS BEEN CLICKED...');
+        console.log('DocumentName : ',record.DocumentName);
+        if(record.DocumentName === 'Complete Milestones'){        
+            var url = frameUrl + '/apex/Vps_MinorMilestonePdfGenerator?status=' + 'All';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId+ '&isslinep2p=' + isslinep2p;
+        window.open(url);
+        }
+        else if(record.DocumentName ==='PIP Configurations'){           
+            var url = frameUrl + '/apex/Vps_MinorMilestonePdfGenerator1?status=' + 'Provisioning';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId;
+        window.open(url);
+        }
+        else if(record.DocumentName ==='Firm Order Confirmation Summary'){           
+            var url = frameUrl + '/apex/Vps_FOCMinorMilestonePdfGenerator?status=' + 'FOCSummary';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId + '&isslinep2p=' + isslinep2p;
+        console.log('-----> URL:s',url);
+        window.open(url);
+        }
+        //SAMATHA ADDED FOR VBGSE-55
+        else if(record.DocumentName ==='Completion Details'){           
+            var url = frameUrl + '/apex/Vps_MinorMilestonePdfGenerator1?status=' + 'Completion';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId;
+        window.open(url);
+        }
+        else if(record.DocumentName.includes('Y.1564TestResults')){  
+            console.log('-----> URL:s',record.DocumentName);
+            console.log('-----> URL:s',record.Id);
+            let req = {'documnetId':record.Id,'orderid':this.ordId,'docName':record.DocumentName};
+            console.log('-----> URL:s',req);
+            //this.showSpinner = true;
+            getTestResultsPDF({requestMap:req}).then(res=>{
+                console.log('getTestResultsPDF res--- '+res);
+                //let attachId = res;
+                let attachId = '00Pe0000008t31o';
+                if(attachId){
+                    let TestResultFileDownloadUrl = frameUrl+'/servlet/servlet.FileDownload?file='+attachId;
+                    window.open(TestResultFileDownloadUrl);
+                    deleteTestResultsPDF({attachmentId:attachId});
+                } else {
+                    this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'There is some issue in processing your request. Please try later',
+                            variant: 'error',
+                        }),
+                    );
+                }
+                //this.showSpinner = false;
+            }).catch(err=>{
+                //this.showSpinner = false;
+                if(err.body){
+                   /* this.dispatchEvent(
+                        new ShowToastEvent({
+                            title: 'System is temporarily unavailable. Please try later',
+                            variant: 'error',
+                        }),
+                    );*/
+                }
+                });
+        }
+        else{
+            var fileDownloadUrl = frameUrl  + '/sfc/servlet.shepherd/version/download/' +record.Id+ '?asPdf=false&operationContext=CHATTER';
+            window.open(fileDownloadUrl);
+        }     
+        
+    }
+    downloadAllFile(record) {
+        /*let url = this.getFileUrl(record.FileId);
+        window.open(url);*/
+
+        var frameUrl;
+        console.log('record Data : ',JSON.stringify(record));
+        console.log('clicked...');
+        var pathElements = window.location.pathname.split('/');
+        console.log(pathElements);
+        
+        if(pathElements.indexOf("Partner") != -1) {
+            frameUrl = window.location.origin + '/' + pathElements[1];
+        } else {
+            frameUrl = window.location.origin;
+        }          
+        console.log('frameURL::::', frameUrl);
+        var orderTrackingNum = this.orderTrackingNum;//("v.orderId");//[SWARS]
+        var customerId = this.custId;//'ATX';
+        var milestoneStatus = this.majorMilestoneStatus;//'Build';
+        var milestonesLst = this.majorMilestonesLst;
+        console.log('THE BUTTON HAS BEEN CLICKED...');
+        console.log('DocumentName : ',record.DocumentName);
+        if(record.DocumentName === 'Complete Milestones'){        
+            var url = frameUrl + '/apex/Vps_MinorMilestonePdfGenerator?status=' + 'All';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId;
+        return url;
+       // window.open(url);
+        }
+       else if(record.DocumentName === 'End User Contingency Report'){      
+            var url = frameUrl + '/apex/Vps_MinorMilestonePdfGenerator?status=' + 'All';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId;
+        //window.open(url);
+        return url;
+        }
+        else if(record.DocumentName === 'Letter Of Authorization'){            
+            console.log('urlforLOA');            
+            //var url = frameUrl  + '/sfc/servlet.shepherd/version/download/' + '068c00000018NpUAAU' + '?asPdf=true&operationContext=CHATTER';
+            var url = frameUrl  + '/sfc/servlet.shepherd/version/download/' + this.preExistingFiles[0].id + '?asPdf=true&operationContext=CHATTER';
+            //window.open(fileDownloadUrl);
+            return url;
+        }
+        else if(record.DocumentName === 'Technical Review'){      
+            console.log('this.preExistingFiles[0].Title**',this.preExistingFiles[0].Title);      
+            if(this.preExistingFiles[0].Title == this.attNameTR){
+                console.log('Insideifcondition');  
+             var url = frameUrl  + '/sfc/servlet.shepherd/version/download/' + this.preExistingFiles[0].id + '?asPdf=true&operationContext=CHATTER';
+             //var fileDownloadUrl = frameUrl  + '/sfc/servlet.shepherd/version/download/' + this.preExistingFiles[0].id + '?asPdf=true&operationContext=CHATTER';
+             //window.open(fileDownloadUrl);
+            }
+            else{
+                console.log('Insideelsecondition');  
+             var url = frameUrl  + '/sfc/servlet.shepherd/version/download/' + this.preExistingFiles[1].id + '?asPdf=true&operationContext=CHATTER'; 
+            }            
+             return url;
+         }
+         else if(record.DocumentName === 'Voice - Traffic Calling Patterns'){            
+            if(this.preExistingFiles[0].Title == this.attName){
+                var url = frameUrl  + '/sfc/servlet.shepherd/version/download/' + this.preExistingFiles[0].id + '?asPdf=true&operationContext=CHATTER';                
+               }
+               else{
+                var url = frameUrl  + '/sfc/servlet.shepherd/version/download/' + this.preExistingFiles[1].id + '?asPdf=true&operationContext=CHATTER'; 
+               }            
+             return url;
+         }
+        else{           
+            var url = frameUrl + '/apex/Vps_MinorMilestonePdfGenerator1?status=' + 'FOCSummary';
+        url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId;
+       // window.open(url);
+       return url;
+        }
+        
+        
+    }
+
+    
+    handleClickDownloadAll() {
+       
+var frameUrl;
+        console.log('clicked...');
+        var pathElements = window.location.pathname.split('/');
+        console.log(pathElements);
+        
+        if(pathElements.indexOf("Partner") != -1) {
+            frameUrl = window.location.origin + '/' + pathElements[1];
+        } else {
+            frameUrl = window.location.origin;
+        }          
+        console.log('frameURL::::', frameUrl);
+        var orderTrackingNum = this.orderTrackingNum;//("v.orderId");//[SWARS]
+        var customerId = this.custId;//'ATX';
+        var isslinep2p = this.isslinep2p;
+        var milestoneStatus = this.majorMilestoneStatus;//'Build';
+        var milestonesLst = this.majorMilestonesLst;
+        console.log('THE BUTTON HAS BEEN CLICKED...');
+     //   console.log('DocumentName : ',record.DocumentName);
+         var url = frameUrl + '/apex/VPS_MilestoneVFZipAttachment?';
+		 url += '&orderId=' + orderTrackingNum + '&customerId=' + customerId+ '&isslinep2p=' + isslinep2p;		
+         if(this.preExistingFiles!=null && this.preExistingFiles!=''){
+            url += '&contentIds=' + this.contentid;
+         }		 
+		 if(this.isFOCExists === true){
+			 url += '&isFOCExists=' + this.isFOCExists;
+         }
+         if(this.isPIPExists === true){
+			 url += '&isPIPExists=' + this.isPIPExists;
+		 }
+		 //SAMATHA ADDED FOR VBGSE-55
+         if(this.completionDetails === true){
+            url += '&completionDetails=' + this.completionDetails;
+        }
+        if(this.testdocListarr!=null && this.testdocListarr!=''){
+            url += '&testdocList=' + this.testdocListarr;
+        }
+       // return url;
+       console.log('THE BUTTON HAS BEEN CLICKED...',url);
+       let newWindow = open(url,'width=300,height=300');
+
+newWindow.onload = function() {
+    alert('window opened');
+  newWindow.close();
+};
+       // window.open(url);
+            
+    }
+}
